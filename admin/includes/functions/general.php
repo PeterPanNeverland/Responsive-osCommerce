@@ -1024,9 +1024,7 @@
     tep_db_query("delete from " . TABLE_ORDERS_TOTAL . " where orders_id = '" . (int)$order_id . "'");
   }
 
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-3
-// Cache the Cross Sell Products module
-/*  function tep_reset_cache_block($cache_block) {
+  function tep_reset_cache_block($cache_block) {
     global $cache_blocks;
 
     for ($i=0, $n=sizeof($cache_blocks); $i<$n; $i++) {
@@ -1057,60 +1055,34 @@
       }
     }
   }
-*/
-function tep_reset_cache_block($cache_block) {
+
+// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-3
+// Extra function - reset individual product cache(s)
+function tep_reset_product_cache($cache_block,$reset_ids) {
   global $cache_blocks;
   
-  $pid = '*';
-  if ($cache_block == 'xsell_products') {
-  	$pid = '';
-    if (isset($_GET['add_related_product_ID']) ) {
-    	$pid =  $_GET['add_related_product_ID'];
-    }
-    if ( !$pid ) $pid = '*';
-  }  
+  if (is_array($reset_ids)) {
+  	$products = $reset_ids;
+  } else {
+    $products = array($reset_ids);
+  }
 
-  for ($i=0, $n=sizeof($cache_blocks); $i<$n; $i++) {
-    if ($cache_blocks[$i]['code'] == $cache_block) {
-      $glob_pattern = preg_replace('#-language.+$#', '-*', $cache_blocks[$i]['file']);
-      foreach ( glob(DIR_FS_CACHE . $glob_pattern . '.cache' . $pid) as $cache_file ) {
-         @unlink($cache_file);
-      }
-      break;
-    }
+  if (count($products) > 0 ) {
+	  for ($i=0, $n=sizeof($cache_blocks); $i<$n; $i++) {
+		if ($cache_blocks[$i]['code'] == $cache_block) {
+		  foreach ($products as $pid) {
+			  $glob_pattern = preg_replace('#-language.+$#', '-*', $cache_blocks[$i]['file']);
+			  foreach ( glob(DIR_FS_CACHE . $glob_pattern . '.cache' . $pid) as $cache_file ) {
+				 @unlink($cache_file);
+			  }
+		  }
+		  break;
+		}
+	  }
   }
 }
-function rdel($path, $deldir = true) { 
-        // $path is the path on the php file
-        // $deldir (optional, defaults to true) allow if you want to delete the directory (true) or empty only (false)
-  
-        // it first checks the name of the directory contents "/" at the end, if we add it
-        if ($path[strlen($path)-1] != "/") 
-                $path .= "/"; 
-  
-        if (is_dir($path)) { 
-                $d = opendir($path); 
-  
-                while ($f = readdir($d)) { 
-                        if ($f != "." && $f != "..") { 
-                                $rf = $path . $f; // path of the php file 
-  
-                                if (is_dir($rf)) // if it is the directory of the function recursively call
-                                        rdel($rf); 
-                                else // if you delete the file
-                                        unlink($rf); 
-                        } 
-                } 
-                closedir($d); 
-  
-                if ($deldir) // if $deldir is true you delete the directory
-                        rmdir($path); 
-        } 
-        else { 
-                unlink($path); 
-        } 
-} 
-// EOF: XSell
+//EOF XSELL
+
   function tep_get_file_permissions($mode) {
 // determine type
     if ( ($mode & 0xC000) == 0xC000) { // unix domain socket

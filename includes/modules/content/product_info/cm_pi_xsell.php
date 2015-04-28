@@ -113,12 +113,14 @@
   }
   // class def ends here, what follows are definitions of functions used above
 
+define('MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST','This test doesn\'t check anything yet so don\'t read too much into it!');
 	// Check whether there's any updating to do (?and maybe if it's the latest version)
 	if( !function_exists( 'tep_xsell_version_check' ) ) {
 		function tep_xsell_version_check() {
 			if (true) {
 				//checks passed
-				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_OK . '</span>';
+				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST . '</span>';
+//				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_OK . '</span>';
 			} else {
 			// The theme was not found, so return an error message
 				return tep_image( DIR_WS_ICONS . 'cross.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold; color:red;">' . sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_FAIL, $files) . '</span>';
@@ -130,7 +132,8 @@
 		function tep_xsell_upload_check() {
 			if (true) {
 				//checks passed
-				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_OK . '</span>';
+				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST . '</span>';
+//				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_OK . '</span>';
 			} else {
 			// The theme was not found, so return an error message
 				return tep_image( DIR_WS_ICONS . 'cross.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold; color:red;">' . sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_FAIL, $missing) . '</span>';
@@ -142,7 +145,8 @@
 		function tep_xsell_edit_check() {
 			if (true) {
 				//checks passed
-				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_OK . '</span>';
+				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST . '</span>';
+//				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_OK . '</span>';
 			} else {
 			// The theme was not found, so return an error message
 				return tep_image( DIR_WS_ICONS . 'cross.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold; color:red;">' . sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_FAIL, $missing_edits) . '</span>';

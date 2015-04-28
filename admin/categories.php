@@ -28,8 +28,8 @@
           if (USE_CACHE == 'true') {
             tep_reset_cache_block('categories');
             tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
-		    tep_reset_cache_block('xsell_products');
+// XSELL-ADM-CAT-RESET-CACHE-EDIT
+		    if (isset($_GET['pID'])) tep_reset_product_cache('xsell_products',$_GET['pID']);
           }
         }
 
@@ -89,8 +89,8 @@
         if (USE_CACHE == 'true') {
           tep_reset_cache_block('categories');
           tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
-	      tep_reset_cache_block('xsell_products');
+// XSELL-ADM-CAT-RESET-CACHE-EDIT
+		    if (isset($_GET['pID'])) tep_reset_product_cache('xsell_products',$_GET['pID']);
         }
 
         tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $categories_id));
@@ -142,8 +142,8 @@
         if (USE_CACHE == 'true') {
           tep_reset_cache_block('categories');
           tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
-		  tep_reset_cache_block('xsell_products');
+// XSELL-ADM-CAT-RESET-CACHE-EDIT
+		    if (isset($_GET['pID'])) tep_reset_product_cache('xsell_products',$_GET['pID']);
         }
 
         tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath));
@@ -168,8 +168,8 @@
         if (USE_CACHE == 'true') {
           tep_reset_cache_block('categories');
           tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
-		  tep_reset_cache_block('xsell_products');
+// XSELL-ADM-CAT-RESET-CACHE-EDIT
+		    if (isset($_GET['pID'])) tep_reset_product_cache('xsell_products',$_GET['pID']);
         }
 
         tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath));
@@ -191,8 +191,8 @@
             if (USE_CACHE == 'true') {
               tep_reset_cache_block('categories');
               tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
-			  tep_reset_cache_block('xsell_products');
+// XSELL-ADM-CAT-RESET-CACHE-EDIT
+		    if (isset($_GET['pID'])) tep_reset_product_cache('xsell_products',$_GET['pID']);
             }
 
             tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $new_parent_id . '&cID=' . $categories_id));
@@ -211,8 +211,8 @@
         if (USE_CACHE == 'true') {
           tep_reset_cache_block('categories');
           tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
-		  tep_reset_cache_block('xsell_products');
+// XSELL-ADM-CAT-RESET-CACHE-EDIT
+		    if (isset($_GET['pID'])) tep_reset_product_cache('xsell_products',$_GET['pID']);
         }
 
         tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $new_parent_id . '&pID=' . $products_id));
@@ -335,8 +335,8 @@
         if (USE_CACHE == 'true') {
           tep_reset_cache_block('categories');
           tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
-		  tep_reset_cache_block('xsell_products');
+// XSELL-ADM-CAT-RESET-CACHE-EDIT
+		    if (isset($_GET['pID'])) tep_reset_product_cache('xsell_products',$_GET['pID']);
         }
 
         tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $products_id));
@@ -380,8 +380,8 @@
           if (USE_CACHE == 'true') {
             tep_reset_cache_block('categories');
             tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
-		    tep_reset_cache_block('xsell_products');
+// XSELL-ADM-CAT-RESET-CACHE-EDIT
+		    if (isset($_GET['pID'])) tep_reset_product_cache('xsell_products',$_GET['pID']);
           }
         }
 

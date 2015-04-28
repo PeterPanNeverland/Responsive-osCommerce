@@ -2,9 +2,11 @@
 /* $Id$
 
 TODO: 
+- SECURITY
+... clean input vars before use and into database
 - check caching (cheque cashing?)
-... reset cache for changed xsells
-... get rid of dir bit - what's it for???
+... [done]reset cache for changed xsells
+... [done]get rid of dir bit - what's it for???
 - add a check if the module is installed
 
 osCommerce, Open Source E-Commerce Solutions
@@ -32,13 +34,17 @@ and many others since
 		$messageStack->add(DB_FAILURE, 'error');
 	}
   }
+  
+  $reset_ids = array();
 
   switch($_GET['action']){
     case 'update_cross' :
       if ($_POST['product']){
         foreach ($_POST['product'] as $temp_prod){
           tep_db_query('delete from ' . TABLE_PRODUCTS_XSELL . ' where xsell_id = "'.$temp_prod.'" and products_id = "'.$_GET['add_related_product_ID'].'"');
-          tep_db_query('delete from ' . TABLE_PRODUCTS_XSELL . ' where xsell_id = "'.$_GET['add_related_product_ID'].'" and products_id = "'.$temp_prod.'"');		  
+		  $reset_ids[] = $_GET['add_related_product_ID'];
+          tep_db_query('delete from ' . TABLE_PRODUCTS_XSELL . ' where xsell_id = "'.$_GET['add_related_product_ID'].'" and products_id = "'.$temp_prod.'"');		
+		  $reset_ids[] = $temp_prod;
         }
       }
 
@@ -54,6 +60,7 @@ and many others since
                                 'sort_order' => $sort);
           tep_db_perform(TABLE_PRODUCTS_XSELL, $insert_array);
         } // foreach $temp
+		$reset_ids[] = $_GET['add_related_product_ID'];
       } // if cross
 // insert reciprocable x-sell products BOF
       if ($_POST['reciprocal_link_cross']){
@@ -67,16 +74,17 @@ and many others since
                                 'xsell_id' => $_GET['add_related_product_ID'],
                                 'sort_order' => $sort2);
           tep_db_perform(TABLE_PRODUCTS_XSELL, $insert_array);
+		  $reset_ids[] = $temp2;
         } // foreach $temp2
       } // if reciprocal_link_cross
 // insert reciprocable x-sell products EOF
       $messageStack->add(CROSS_SELL_SUCCESS, 'success');
-//Cache
-      $cachedir = DIR_FS_CACHE_XSELL . $_GET['add_related_product_ID'];
-      if(is_dir($cachedir)) {
-        rdel($cachedir);
-      }
-//Fin Cache
+
+	  if (count($reset_ids) > 0) {
+	  	$reset_ids = array_unique($reset_ids);
+	    tep_reset_product_cache('xsell_products',$reset_ids);
+	  }
+
       break;
 
     case 'update_sort' :
@@ -84,6 +92,7 @@ and many others since
         tep_db_query('update ' . TABLE_PRODUCTS_XSELL . ' set sort_order = "' . $value_a . '" where xsell_id = "' . $key_a . '"');
       }
       $messageStack->add(SORT_CROSS_SELL_SUCCESS, 'success');
+	  tep_reset_product_cache('xsell_products',$_GET['add_related_product_ID']);
       break;
   }
 
