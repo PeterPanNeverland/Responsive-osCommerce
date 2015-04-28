@@ -1057,14 +1057,24 @@
   }
 
 // XSELL-ADM-GENERAL-FUNCTIONS-EDIT-3
-// Extra function - reset individual product cache(s)
+// Extra functions - reset individual product cache(s)
+function tep_get_products_to_reset($product_id) {
+	$return = array();
+	$return[] = $product_id;
+	$xsell_query = tep_db_query('SELECT products_id FROM products_xsell WHERE xsell_id = "'.(int)$product_id.'"');
+	while ($xsell = tep_db_fetch_array($xsell_query)) {
+		$return[] = $xsell['products_id'];
+	}
+	return $return;
+}
 function tep_reset_product_cache($cache_block,$reset_ids) {
   global $cache_blocks;
   
   if (is_array($reset_ids)) {
   	$products = $reset_ids;
   } else {
-    $products = array($reset_ids);
+    $products = array();
+	$products[] = $reset_ids;
   }
 
   if (count($products) > 0 ) {

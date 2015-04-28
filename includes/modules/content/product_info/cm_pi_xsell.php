@@ -50,11 +50,13 @@
         include(DIR_WS_MODULES . 'xsell_products.php');
         $xsell_data .= ob_get_clean();
 	  }
-	  ob_start();
-	  include(DIR_WS_MODULES . 'content/' . $this->group . '/templates/xsell.php');
-	  $template = ob_get_clean();
-	
-	  $oscTemplate->addContent($template, $this->group);
+	  if (!is_null($xsell_data) && strlen($xsell_data) > 0) {
+		  ob_start();
+		  include(DIR_WS_MODULES . 'content/' . $this->group . '/templates/xsell.php');
+		  $template = ob_get_clean();
+		
+		  $oscTemplate->addContent($template, $this->group);
+	  }
     }
 
     function isEnabled() {
