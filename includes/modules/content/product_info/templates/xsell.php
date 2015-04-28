@@ -1,6 +1,6 @@
-<style type='text/css'> div.xsell .item {min-width: 250px} </style>
-<div class="col-sm-<?php echo $content_width; ?> xsell">
-  <h4 class="page-header"><?php echo TEXT_XSELL_PRODUCTS; ?></h4>
+<style type='text/css'> div.xsell .item {min-width: 260px} </style>
+<div class="col-sm-<?php echo $content_width . ' ' . MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_ALIGN; ?> xsell">
+  <h4 class="page-header"><?php echo MODULE_CONTENT_PRODUCT_INFO_XSELL_PRODUCTS_TEXT; ?></h4>
     <div class="well well-sm">
 
 		<?php

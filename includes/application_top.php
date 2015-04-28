@@ -325,8 +325,15 @@
       $parameters = array('action', 'cPath', 'products_id', 'pid');
     } else {
       $goto = $PHP_SELF;
-      if ($HTTP_GET_VARS['action'] == 'buy_now') {
-        $parameters = array('action', 'pid', 'products_id');
+// XSELL-CAT-APP-TOP-EDIT-1
+      if ($_GET['action'] == 'buy_now') {
+// BOE: XSell
+        if (isset($_GET['product_to_buy_id'])) {
+          $parameters = array('action', 'pid', 'products_to_buy_id');
+		} else {
+          $parameters = array('action', 'pid', 'products_id');
+		}
+// EOE: XSell
       } else {
         $parameters = array('action', 'pid');
       }
@@ -361,7 +368,16 @@
                               tep_redirect(tep_href_link($goto, tep_get_all_get_params($parameters)));
                               break;
       // performed by the 'buy now' button in product listings and review page
-      case 'buy_now' :        if (isset($HTTP_GET_VARS['products_id'])) {
+// XSELL-CAT-APP-TOP-EDIT-2
+// BOF: XSell
+      case 'buy_now' :        if (isset($_GET['product_to_buy_id'])) {
+								if (tep_has_product_attributes($_GET['product_to_buy_id'])) {
+								  tep_redirect(tep_href_link(FILENAME_PRODUCT_INFO, 'products_id=' . $_GET['product_to_buy_id']));
+								} else {
+								  $cart->add_cart($_GET['product_to_buy_id'], $cart->get_quantity($_GET['product_to_buy_id'])+1);
+								}
+                              } elseif (isset($_GET['products_id'])) {
+// EOF: XSell
                                 if (tep_has_product_attributes($HTTP_GET_VARS['products_id'])) {
                                   tep_redirect(tep_href_link(FILENAME_PRODUCT_INFO, 'products_id=' . $HTTP_GET_VARS['products_id']));
                                 } else {

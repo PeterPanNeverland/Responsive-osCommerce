@@ -76,7 +76,6 @@ define('BOX_CATALOG_MANUFACTURERS', 'Manufacturers');
 define('BOX_CATALOG_REVIEWS', 'Reviews');
 define('BOX_CATALOG_SPECIALS', 'Specials');
 define('BOX_CATALOG_PRODUCTS_EXPECTED', 'Products Expected');
-define('BOX_CATALOG_XSELL_PRODUCTS', 'Cross Sell Products');
 
 // customers box text in includes/boxes/customers.php
 define('BOX_HEADING_CUSTOMERS', 'Customers');
@@ -289,6 +288,8 @@ define('TEXT_FIELD_REQUIRED', '&nbsp;<span class="fieldRequired">* Required</spa
 define('TEXT_CACHE_CATEGORIES', 'Categories Box');
 define('TEXT_CACHE_MANUFACTURERS', 'Manufacturers Box');
 define('TEXT_CACHE_ALSO_PURCHASED', 'Also Purchased Module');
+// XSELL-ADM-LANGUAGE-EDIT-1
+define('TEXT_CACHE_XSELL_PRODUCTS', 'Cross Sell Products');
 
 define('TEXT_NONE', '--none--');
 define('TEXT_TOP', 'Top');

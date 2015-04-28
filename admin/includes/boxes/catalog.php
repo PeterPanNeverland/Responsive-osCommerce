@@ -39,11 +39,6 @@
         'link' => tep_href_link(FILENAME_SPECIALS)
       ),
       array(
-        'code' => 'xsell.php',
-        'title' => BOX_CATALOG_XSELL_PRODUCTS,
-        'link' => tep_href_link('xsell.php')
-      ),	  
-      array(
         'code' => FILENAME_PRODUCTS_EXPECTED,
         'title' => BOX_CATALOG_PRODUCTS_EXPECTED,
         'link' => tep_href_link(FILENAME_PRODUCTS_EXPECTED)

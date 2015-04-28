@@ -1,5 +1,12 @@
 <?php
 /* $Id$
+
+TODO: 
+- check caching (cheque cashing?)
+... reset cache for changed xsells
+... get rid of dir bit - what's it for???
+- add a check if the module is installed
+
 osCommerce, Open Source E-Commerce Solutions
 http://www.oscommerce.com
 Copyright (c) 2002 osCommerce

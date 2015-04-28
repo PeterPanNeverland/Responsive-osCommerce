@@ -951,6 +951,8 @@
     if (USE_CACHE == 'true') {
       tep_reset_cache_block('categories');
       tep_reset_cache_block('also_purchased');
+// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
+      tep_reset_cache_block('xsell_products');
     }
   }
 
@@ -996,10 +998,14 @@
       tep_db_query("delete from " . TABLE_REVIEWS_DESCRIPTION . " where reviews_id = '" . (int)$product_reviews['reviews_id'] . "'");
     }
     tep_db_query("delete from " . TABLE_REVIEWS . " where products_id = '" . (int)$product_id . "'");
+	
+    tep_db_query("DELETE FROM products_xsell WHERE products_id = '" . (int)$product_id . "' OR xsell_id = '" . (int)$product_id . "'");
 
     if (USE_CACHE == 'true') {
       tep_reset_cache_block('categories');
       tep_reset_cache_block('also_purchased');
+// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-2
+      tep_reset_cache_block('xsell_products');
     }
   }
 
@@ -1018,7 +1024,9 @@
     tep_db_query("delete from " . TABLE_ORDERS_TOTAL . " where orders_id = '" . (int)$order_id . "'");
   }
 
-  function tep_reset_cache_block($cache_block) {
+// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-3
+// Cache the Cross Sell Products module
+/*  function tep_reset_cache_block($cache_block) {
     global $cache_blocks;
 
     for ($i=0, $n=sizeof($cache_blocks); $i<$n; $i++) {
@@ -1049,7 +1057,60 @@
       }
     }
   }
+*/
+function tep_reset_cache_block($cache_block) {
+  global $cache_blocks;
+  
+  $pid = '*';
+  if ($cache_block == 'xsell_products') {
+  	$pid = '';
+    if (isset($_GET['add_related_product_ID']) ) {
+    	$pid =  $_GET['add_related_product_ID'];
+    }
+    if ( !$pid ) $pid = '*';
+  }  
 
+  for ($i=0, $n=sizeof($cache_blocks); $i<$n; $i++) {
+    if ($cache_blocks[$i]['code'] == $cache_block) {
+      $glob_pattern = preg_replace('#-language.+$#', '-*', $cache_blocks[$i]['file']);
+      foreach ( glob(DIR_FS_CACHE . $glob_pattern . '.cache' . $pid) as $cache_file ) {
+         @unlink($cache_file);
+      }
+      break;
+    }
+  }
+}
+function rdel($path, $deldir = true) { 
+        // $path is the path on the php file
+        // $deldir (optional, defaults to true) allow if you want to delete the directory (true) or empty only (false)
+  
+        // it first checks the name of the directory contents "/" at the end, if we add it
+        if ($path[strlen($path)-1] != "/") 
+                $path .= "/"; 
+  
+        if (is_dir($path)) { 
+                $d = opendir($path); 
+  
+                while ($f = readdir($d)) { 
+                        if ($f != "." && $f != "..") { 
+                                $rf = $path . $f; // path of the php file 
+  
+                                if (is_dir($rf)) // if it is the directory of the function recursively call
+                                        rdel($rf); 
+                                else // if you delete the file
+                                        unlink($rf); 
+                        } 
+                } 
+                closedir($d); 
+  
+                if ($deldir) // if $deldir is true you delete the directory
+                        rmdir($path); 
+        } 
+        else { 
+                unlink($path); 
+        } 
+} 
+// EOF: XSell
   function tep_get_file_permissions($mode) {
 // determine type
     if ( ($mode & 0xC000) == 0xC000) { // unix domain socket
