@@ -88,7 +88,8 @@
       $this->title = MODULE_SHIPPING_UKCODEBAND_TEXT_TITLE;
       $this->description = MODULE_SHIPPING_UKCODEBAND_TEXT_DESCRIPTION;
       $this->sort_order = MODULE_SHIPPING_UKCODEBAND_SORT_ORDER;
-      $this->icon = DIR_WS_ICONS . 'shipping_nextday.png';
+      $this->icon = '';
+//      $this->icon = DIR_WS_ICONS . 'shipping_nextday.png';
       $this->tax_class = MODULE_SHIPPING_UKCODEBAND_TAX_CLASS;
       $this->enabled = ((MODULE_SHIPPING_UKCODEBAND_STATUS == 'True') ? true : false);
       $this->top_error = ((MODULE_SHIPPING_UKCODEBAND_TOP_ERROR == 'Error') ? true : false);
@@ -125,9 +126,9 @@ $qResult = tep_db_query($sql); // run the query
       $rec = tep_db_fetch_array($qResult); // get the first row of the result
       $dest_zone = $rec['t_zone'];
 
-//checks to see if there is a blank areazone entry and returns error message if not
+//checks to see if there is a blank areazone entry and returns error message if so
       if ( $dest_zone == '' ){
-	 $this->quotes['error'] = MODULE_SHIPPING_UKCODEBAND_INVALID_ZONE;
+	 $this->quotes['error'] = sprintf(MODULE_SHIPPING_UKCODEBAND_INVALID_ZONE,$t_postcode);
       	return $this->quotes;
       }
 
@@ -196,7 +197,7 @@ $qResult = tep_db_query($sql); // run the query
     }
 
     function install() {
-      tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) VALUES ('Enable UK postcode banded delivery', 'MODULE_SHIPPING_UKCODEBAND_STATUS', 'True', 'Offer UK carrier shipping by carrier zone?', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+      tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) VALUES ('Enable UK postcode banded delivery', 'MODULE_SHIPPING_UKCODEBAND_STATUS', 'False', 'Offer UK carrier shipping by carrier zone?', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Tax Class', 'MODULE_SHIPPING_UKCODEBAND_TAX_CLASS', '1', 'Use the following tax class on the shipping/delivery fee.', '6', '0', 'tep_get_tax_class_title', 'tep_cfg_pull_down_tax_classes(', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Table Method', 'MODULE_SHIPPING_UKCODEBAND_MODE', 'weight', 'The shipping cost is based on the order total or the total weight of the items ordered.', '6', '0', 'tep_cfg_select_option(array(\'weight\', \'price\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) VALUES ('Off the top of table: error or free?', 'MODULE_SHIPPING_UKCODEBAND_TOP_ERROR', 'Error', '', '6', '0', 'tep_cfg_select_option(array(\'Error\', \'Free\'), ', now())");
