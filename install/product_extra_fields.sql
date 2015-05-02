@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `products_extra_fields` (
   `languages_id` int(11) NOT NULL default '0',
   `category_id` text collate utf8_unicode_ci NOT NULL,
   `google_only` char(1) collate utf8_unicode_ci NOT NULL default '0',
+  `searchable` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`products_extra_fields_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 

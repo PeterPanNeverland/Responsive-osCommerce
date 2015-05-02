@@ -17,6 +17,16 @@
   $breadcrumb->add(NAVBAR_TITLE_1, tep_href_link(FILENAME_ADVANCED_SEARCH));
 
   require(DIR_WS_INCLUDES . 'template_top.php');
+
+// XTRA-FIELDS-ADV-SEARCH-EDIT-1
+// START: Extra Fields Contribution Search Fields 1.0
+$pef_fields = array();
+$pef_fields_query = tep_db_query("SELECT products_extra_fields_id, products_extra_fields_name FROM products_extra_fields WHERE (languages_id = 0 OR languages_id = " . (int)$languages_id . ") AND products_extra_fields_status = 1 AND google_only = '0' AND searchable = 1 ORDER BY products_extra_fields_order");
+while ($field = tep_db_fetch_array($pef_fields_query))
+  {
+	$pef_fields[] = $field;
+  }
+// END: Extra Fields Contribution
 ?>
 
 <script src="includes/general.js"></script>
@@ -33,10 +43,26 @@ function check_form() {
   var pfrom_float;
   var pto_float;
 
-  if ( ((keywords == '') || (keywords.length < 1)) && ((dfrom == '') || (dfrom.length < 1)) && ((dto == '') || (dto.length < 1)) && ((pfrom == '') || (pfrom.length < 1)) && ((pto == '') || (pto.length < 1)) ) {
-    error_message = error_message + "* <?php echo ERROR_AT_LEAST_ONE_INPUT; ?>\n";
-    error_field = document.advanced_search.keywords;
-    error_found = true;
+<?php
+// XTRA-FIELDS-ADV-SEARCH-EDIT-2
+// START: Extra Fields Contribution Search Fields 1.0
+foreach ($pef_fields as $field){	
+echo '  var pef_'.$field['products_extra_fields_id'].' = document.advanced_search.pef_'.$field['products_extra_fields_id'].".value;\n";}?> 
+
+if ( ((keywords == '') || (keywords.length < 1)) && ((dfrom == '') || (dfrom.length < 1)) && ((dto == '') || (dto.length < 1)) && ((pfrom == '') || (pfrom.length < 1)) && ((pto == '') || (pto.length < 1)) 
+<?php
+// START: Product Extra Fields Contribution Search Fields 1.0
+foreach ($pef_fields as $field)
+{	
+     $fieldid =  'pef_'.$field['products_extra_fields_id'];	
+     echo " && (( $fieldid == '' ) || ($fieldid.length < 1))";
+}
+// END: Extra Fields Contribution
+?>
+) {    
+    error_message = error_message + "* <?php echo ERROR_AT_LEAST_ONE_INPUT; ?>\n";    
+    error_field = document.advanced_search.keywords;    
+    error_found = true;  
   }
 
   if (dfrom.length > 0) {
@@ -176,6 +202,25 @@ function check_form() {
         ?>
       </div>
     </div>
+<?php
+// XTRA-FIELDS-ADV-SEARCH-EDIT-3 
+// START: Extra Fields Contribution Search Fields 1.0
+$pef_fields = tep_db_query("SELECT products_extra_fields_id, products_extra_fields_name FROM products_extra_fields WHERE (languages_id = 0 OR languages_id = " . (int)$languages_id . ") AND products_extra_fields_status = 1 AND google_only = '0' AND searchable = 1 ORDER BY products_extra_fields_order");
+while ($field = tep_db_fetch_array($pef_fields))
+{
+?>
+    <div class="form-group">
+      <label for="<?php echo str_replace(' ','',$field['products_extra_fields_name']); ?>" class="control-label col-sm-3"><?php echo $field['products_extra_fields_name']; ?></label>
+      <div class="col-sm-9">
+        <?php
+        echo tep_draw_input_field('pef'.$field['products_extra_fields_id'], '', 'id="'.str_replace(' ','',$field['products_extra_fields_name']).'" placeholder="' . $field['products_extra_fields_name'] . '"');
+        ?>
+      </div>
+    </div>
+<?php
+}
+// END: Extra Fields Contribution
+?>
     <div class="form-group">
       <label for="PriceFrom" class="control-label col-sm-3"><?php echo ENTRY_PRICE_FROM; ?></label>
       <div class="col-sm-9">

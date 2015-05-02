@@ -14,6 +14,23 @@
 
   require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_ADVANCED_SEARCH);
 
+// XTRA-FIELDS-ADV-SEARCH-RESULTS-EDIT-1
+// START: Extra Fields Contribution Search Fields 1.0
+$pef_fields = array();
+$pef_fields_query = tep_db_query("SELECT products_extra_fields_id, products_extra_fields_name FROM products_extra_fields WHERE (languages_id = 0 OR languages_id = " . (int)$languages_id . ") AND products_extra_fields_status AND searchable ORDER BY products_extra_fields_order");
+while ($field = tep_db_fetch_array($pef_fields_query))
+{
+        $pef_fields[] = $field;
+}
+$pef_empty = true;
+foreach ($pef_fields as $field)
+{
+	$pef_id = 'pef_'.$field['products_extra_fields_id'];
+	if (isset($HTTP_GET_VARS[$pef_id]) && !empty($HTTP_GET_VARS[$pef_id]))
+		$pef_empty = false;
+}
+// END: Extra Fields Contribution
+
   $error = false;
 
   if ( (isset($HTTP_GET_VARS['keywords']) && empty($HTTP_GET_VARS['keywords'])) &&
@@ -183,7 +200,12 @@
     $select_str .= ", SUM(tr.tax_rate) as tax_rate ";
   }
 
-  $from_str = "from " . TABLE_PRODUCTS . " p left join " . TABLE_MANUFACTURERS . " m using(manufacturers_id) left join " . TABLE_SPECIALS . " s on p.products_id = s.products_id";
+// XTRA-FIELDS-ADV-SEARCH-RESULTS-EDIT-2
+// START: Extra Fields Contribution
+//  $from_str = "from " . TABLE_PRODUCTS . " p left join " . TABLE_MANUFACTURERS . " m using(manufacturers_id) left join " . TABLE_SPECIALS . " s on p.products_id = s.products_id";
+  $from_str = "from " . TABLE_PRODUCTS . " p left join products_to_products_extra_fields p2pef on p.products_id=p2pef.products_id left join ".TABLE_MANUFACTURERS . " m on p.manufacturers_id=m.manufacturers_id left join " . TABLE_SPECIALS . " s on p.products_id = s.products_id";
+// END: Extra Fields Contribution
+
 
   if ( (DISPLAY_PRICE_WITH_TAX == 'true') && (tep_not_null($pfrom) || tep_not_null($pto)) ) {
     if (!tep_session_is_registered('customer_country_id')) {
@@ -230,7 +252,11 @@
           break;
         default:
           $keyword = tep_db_prepare_input($search_keywords[$i]);
-          $where_str .= "(pd.products_name like '%" . tep_db_input($keyword) . "%' or p.products_model like '%" . tep_db_input($keyword) . "%' or m.manufacturers_name like '%" . tep_db_input($keyword) . "%'";
+// XTRA-FIELDS-ADV-SEARCH-RESULTS-EDIT-3
+// START: Extra Fields Contribution
+//          $where_str .= "(pd.products_name like '%" . tep_db_input($keyword) . "%' or p.products_model like '%" . tep_db_input($keyword) . "%' or m.manufacturers_name like '%" . tep_db_input($keyword) . "%'";
+          $where_str .= "(pd.products_name like '%" . tep_db_input($keyword) . "%' or p.products_model like '%" . tep_db_input($keyword) . "%' or m.manufacturers_name like '%" . tep_db_input($keyword) . "%' or p2pef.products_extra_fields_value like '%" . tep_db_input($keyword) . "%'";
+// END: Extra Fields Contribution
           if (isset($HTTP_GET_VARS['search_in_description']) && ($HTTP_GET_VARS['search_in_description'] == '1')) $where_str .= " or pd.products_description like '%" . tep_db_input($keyword) . "%'";
           $where_str .= ')';
           break;

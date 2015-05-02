@@ -11,6 +11,9 @@
   * 
   * v2.0: added languages support
 */
+define('FILENAME_PRODUCTS_EXTRA_FIELDS','product_extra_fields.php');
+define('TABLE_PRODUCTS_EXTRA_FIELDS','products_extra_fields');
+define('TABLE_PRODUCTS_TO_PRODUCTS_EXTRA_FIELDS','products_to_products_extra_fields');
 require('includes/application_top.php');
 
 $action = (isset($_GET['action']) ? $_GET['action'] : '');
@@ -29,6 +32,7 @@ if (tep_not_null($action)) {
 	                          'languages_id' => tep_db_prepare_input ($_POST['field']['language']),
 	                          'category_id' =>  tep_db_prepare_input ($_POST['field']['category']),
 	                          'google_only' =>  tep_db_prepare_input ($_POST['field']['google']),
+	                          'searchable' =>  tep_db_prepare_input ($_POST['field']['searchable']),
 							  'products_extra_fields_order' => tep_db_prepare_input($_POST['field']['order']));
 			tep_db_perform(TABLE_PRODUCTS_EXTRA_FIELDS, $sql_data_array, 'insert');
 
@@ -40,6 +44,7 @@ if (tep_not_null($action)) {
 		                        'languages_id' =>  tep_db_prepare_input($val['language']),
 		                        'category_id' =>  tep_db_prepare_input($val['category']),
 		                        'google_only' =>  tep_db_prepare_input($val['google']),
+	                            'searchable' =>  tep_db_prepare_input ($_POST['field']['searchable']),
 			   					'products_extra_fields_order' => tep_db_prepare_input($val['order']));
 			  tep_db_perform(TABLE_PRODUCTS_EXTRA_FIELDS, $sql_data_array, 'update', 'products_extra_fields_id=' . $key);
       }
@@ -67,8 +72,8 @@ if (tep_not_null($action)) {
 	$values[$i+1]=array ('id' =>$languages[$i]['id'], 'text' =>$languages[$i]['name']);
   }
 
-  $google_only_array = array(array('id' => '1', 'text' => ENTRY_GOOGLE_ONLY_YES),
-                             array('id' => '0', 'text' => ENTRY_GOOGLE_ONLY_NO));
+  $select_array = array(array('id' => '1', 'text' => ENTRY_YES),
+                             array('id' => '0', 'text' => ENTRY_NO));
 
 require(DIR_WS_INCLUDES . 'template_top.php');
 		 
@@ -84,24 +89,26 @@ require(DIR_WS_INCLUDES . 'template_top.php');
       </tr>
 
     <tr>
+        <td><table border="0" width="100%" cellspacing="0" cellpadding="0">
+          <tr>
      <td width="100%">
+       <?php echo SUBHEADING_TITLE; ?>
       <!--
       <div style="font-family: verdana; font-weight: bold; font-size: 17px; margin-bottom: 8px; color: #727272;">
-       <?php echo SUBHEADING_TITLE; ?>
       </div>
       -->
       <br />
-      <?php //echo tep_draw_form("add_field", FILENAME_PRODUCTS_EXTRA_FIELDS, 'action=add', 'post'); ?>
-	  
+
 	  <?php echo tep_draw_form('add_field', FILENAME_PRODUCTS_EXTRA_FIELDS, 'action=add', 'post'); ?>
       <table border="0" width="100%" cellspacing="0" cellpadding="2">
        <tr class="dataTableHeadingRow">
         <td class="dataTableHeadingContent" width="20">&nbsp;</td>
-		<td class="dataTableHeadingContent" width="40%"><?php echo TABLE_HEADING_FIELDS; ?></td>
+		<td class="dataTableHeadingContent" width="30%"><?php echo TABLE_HEADING_FIELDS; ?></td>
         <td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_ORDER; ?></td>
 		<td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_LANGUAGE; ?></td>
         <td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_CATEGORY; ?></td>
         <td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_GOOGLE_ONLY; ?></td>
+        <td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_SEARCHABLE; ?></td>
         <td class="dataTableHeadingContent" align="center"><?php echo TABLE_HEADING_ACTION; ?></td>
        </tr>
 
@@ -121,29 +128,35 @@ require(DIR_WS_INCLUDES . 'template_top.php');
           <?php echo tep_draw_input_field('field[category]', $field['category'], 'size=10', false, 'text', true);?>
         </td>
         <td class="dataTableContent" align="center">
-          <?php echo tep_draw_pull_down_menu('field[google]', $google_only_array, (($field['google'] == '1') ? '1' : '0'));?>
+          <?php echo tep_draw_pull_down_menu('field[google]', $select_array, (($field['google'] == '1') ? '1' : '0'));?>
+        </td>
+        <td class="dataTableContent" align="center">
+          <?php echo tep_draw_pull_down_menu('field[searchable]', $select_array, (($field['searchable'] == '1') ? '1' : '0'));?>
         </td>
         <td class="dataTableHeadingContent" align="center">
-	<?php echo tep_image_submit('button_add_field.gif',IMAGE_ADD_FIELD)?>
+	<?php echo tep_draw_button(IMAGE_ADD_FIELD,'plus','','','name="add"');?>
+	<?php // echo tep_image_submit('button_add_field.gif',IMAGE_ADD_FIELD)?>
         </td>
        </tr>
-       </form>
       </table>
+      </form>
       <br>
       <hr />
       <br>
       <?php
+       echo SUBHEADING_TITLE_2.'<br>';
        echo tep_draw_form('extra_fields', FILENAME_PRODUCTS_EXTRA_FIELDS,'action=update','post');
       ?>
       <?php echo $action_message; ?>
       <table border="0" width="100%" cellspacing="0" cellpadding="2">
        <tr class="dataTableHeadingRow">
         <td class="dataTableHeadingContent" width="20">&nbsp;</td>
-        <td class="dataTableHeadingContent" width="40%"><?php echo TABLE_HEADING_FIELDS; ?></td>
+        <td class="dataTableHeadingContent" width="30%"><?php echo TABLE_HEADING_FIELDS; ?></td>
         <td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_ORDER; ?></td>
 		<td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_LANGUAGE; ?></td>
         <td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_CATEGORY; ?></td>
         <td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_GOOGLE_ONLY; ?></td>
+        <td class="dataTableHeadingContent" align="center" width="10%"><?php echo TABLE_HEADING_SEARCHABLE; ?></td>
         <td class="dataTableHeadingContent" align="center"><?php echo TABLE_HEADING_STATUS; ?></td>
        </tr>
 <?php
@@ -167,7 +180,10 @@ while ($extra_fields = tep_db_fetch_array($products_extra_fields_query)) {
          <?php echo tep_draw_input_field('field['.$extra_fields['products_extra_fields_id'].'][category]', $extra_fields['category_id'], 'size=10', false, 'text', true);?>
         </td>
         <td class="dataTableContent" align="center">
-		 <?php echo tep_draw_pull_down_menu('field['.$extra_fields['products_extra_fields_id'].'][google]', $google_only_array, $extra_fields['google_only'], ''); ?>
+		 <?php echo tep_draw_pull_down_menu('field['.$extra_fields['products_extra_fields_id'].'][google]', $select_array, $extra_fields['google_only'], ''); ?>
+        </td>
+        <td class="dataTableContent" align="center">
+		 <?php echo tep_draw_pull_down_menu('field['.$extra_fields['products_extra_fields_id'].'][searchable]', $select_array, $extra_fields['searchable'], ''); ?>
         </td>
 		<td  class="dataTableContent" align="center">
          <?php
@@ -186,15 +202,20 @@ while ($extra_fields = tep_db_fetch_array($products_extra_fields_query)) {
       <hr />
       <br>
 
-         <?php echo tep_image_submit('button_update_fields.gif',IMAGE_UPDATE_FIELDS)?> 
+         <?php echo tep_draw_button(IMAGE_UPDATE_FIELDS,'','','','name="update"');?> 
+         <?php //echo tep_image_submit('button_update_fields.gif',IMAGE_UPDATE_FIELDS)?> 
          &nbsp;&nbsp;
-		 <?php echo tep_image_submit('button_remove_fields.gif',IMAGE_REMOVE_FIELDS,'name="remove"')?> 
+		 <?php echo tep_draw_button(IMAGE_REMOVE_FIELDS,'','','','name="remove"')?> 
+		 <?php //echo tep_image_submit('button_remove_fields.gif',IMAGE_REMOVE_FIELDS,'name="remove"')?> 
         </td>
        </tr>
 	   <tr>
 	   <td colspan="7" class="smallText"><br><?php echo TEXT_CATEGORIES_INFO; ?></td>
 	   </tr>
+      </table>
        </form>
+     </td>
+	   </tr>
       </table>
      </td>
     </tr>
