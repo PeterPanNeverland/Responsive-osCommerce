@@ -951,8 +951,6 @@
     if (USE_CACHE == 'true') {
       tep_reset_cache_block('categories');
       tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-CACHE-RESET
-      tep_reset_cache_block('xsell_products');
     }
   }
 
@@ -1004,8 +1002,8 @@
     if (USE_CACHE == 'true') {
       tep_reset_cache_block('categories');
       tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-2
-      tep_reset_cache_block('xsell_products');
+// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-1
+	  tep_reset_product_cache('xsell_products',tep_get_products_to_reset($product_id));
     }
   }
 
@@ -1056,7 +1054,7 @@
     }
   }
 
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-3
+// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-2
 // Extra functions - reset individual product cache(s)
 function tep_get_products_to_reset($product_id) {
 	$return = array();
