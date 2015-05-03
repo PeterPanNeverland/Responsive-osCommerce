@@ -14,6 +14,7 @@
 
   Released under the GNU General Public License
 */
+  define('MODULE_CONTENT_PRODUCT_INFO_XSELL_FILE_VER','00.03');
 
   class cm_pi_xsell {
     var $code;
@@ -22,7 +23,7 @@
     var $description;
     var $sort_order;
     var $enabled = false;
-    var $version = '0.1';
+    var $version = MODULE_CONTENT_PRODUCT_INFO_XSELL_FILE_VER;
 
     function cm_pi_xsell() {
       $this->code = get_class($this);
@@ -88,7 +89,7 @@
       tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Min Product Width', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_PRODUCT_MIN_WIDTH', '4', 'Minimum width (in page columns) of product grid listing in Cross Sell Block - used to fill out a single row. NB output may be cached.', '6', '1', 'tep_cfg_select_option(array(\'6\', \'5\', \'4\', \'3\', \'2\'), ', now())");
       tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_SORT_ORDER', '700', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
 	  //validation stuff
-      tep_db_query( "insert into configuration ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added ) values ( '', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK',  '',  '', '6', '9', 'tep_xsell_version_check', 'tep_cfg_do_nothing(', now() ) ");
+      tep_db_query( "insert into configuration ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added ) values ( '', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK',  '".$this->version."',  '', '6', '9', 'tep_xsell_version_check', 'tep_cfg_do_nothing(', now() ) ");
       tep_db_query( "insert into configuration ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added ) values ( '', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_CHECK',  '',  '', '6', '9', 'tep_xsell_upload_check', 'tep_cfg_do_nothing(', now() ) ");
       tep_db_query( "insert into configuration ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added ) values ( '', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_CHECK',  '',  '', '6', '9', 'tep_xsell_edit_check', 'tep_cfg_do_nothing(', now() ) ");
     }
@@ -119,25 +120,50 @@ define('MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST','This test doesn\'t check any
 	// Check whether there's any updating to do (?and maybe if it's the latest version)
 	if( !function_exists( 'tep_xsell_version_check' ) ) {
 		function tep_xsell_version_check() {
-			if (true) {
-				//checks passed
-				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST . '</span>';
-//				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_OK . '</span>';
+			$file_version = MODULE_CONTENT_PRODUCT_INFO_XSELL_FILE_VER;
+			if (defined('MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK') && MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK <>'') {
+				$db_version = MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK;
 			} else {
-			// The theme was not found, so return an error message
-				return tep_image( DIR_WS_ICONS . 'cross.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold; color:red;">' . sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_FAIL, $files) . '</span>';
+				$db_version = '00.00';
 			}
+			if ($db_version > $file_version) {
+				return tep_image( DIR_WS_ICONS . 'cross.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold; color:red;">' . sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_NOK, $files) . '</span>';
+			} elseif ($db_version < $file_version) {
+				//put any update processing here ... remember to cater for skipped versions
+
+				//set database version 
+				tep_db_query("update configuration set configuration_value = '".$file_version."' where configuration_key = 'MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK'");
+				$msg = sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_OK,$db_version,$file_version);
+			} else {
+				$msg = sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_SAME,$file_version);
+			}
+			//checks passed
+			return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . $msg . '</span>';
 		} 
 	} 
 	// Check whether all new files have been uploaded
 	if( !function_exists( 'tep_xsell_upload_check' ) ) {
 		function tep_xsell_upload_check() {
-			if (true) {
+			global $language;
+			$newfiles = array(
+				DIR_FS_ADMIN . DIR_WS_BOXES . 'xsell.php',
+				DIR_FS_ADMIN . DIR_WS_FUNCTIONS . 'xsell.php',
+				DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/modules/boxes/xsell.php',
+				DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/xsell.php',
+				DIR_FS_ADMIN . 'xsell.php',
+				DIR_FS_CATALOG_LANGUAGES . $language . '/modules/content/product_info/cm_pi_xsell.php',
+				DIR_FS_CATALOG_MODULES . 'content/product_info/templates/xsell.php',
+				DIR_FS_CATALOG_MODULES . 'xsell_products.php'
+			);
+			$missing = '';
+			foreach ($newfiles as $file) {
+				if (!file_exists($file)) $missing .= '<br>'.$file;
+			}
+			if (strlen($missing) == 0) {
 				//checks passed
-				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST . '</span>';
-//				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_OK . '</span>';
+				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_OK . '</span>';
 			} else {
-			// The theme was not found, so return an error message
+			// failed, so return an error message
 				return tep_image( DIR_WS_ICONS . 'cross.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold; color:red;">' . sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_FAIL, $missing) . '</span>';
 			}
 		} 
@@ -150,7 +176,7 @@ define('MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST','This test doesn\'t check any
 				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST . '</span>';
 //				return tep_image( DIR_WS_ICONS . 'tick.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_OK . '</span>';
 			} else {
-			// The theme was not found, so return an error message
+			// failed, so return an error message
 				return tep_image( DIR_WS_ICONS . 'cross.gif', '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold; color:red;">' . sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_FAIL, $missing_edits) . '</span>';
 			}
 		} 

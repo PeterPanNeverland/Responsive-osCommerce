@@ -18,9 +18,11 @@ define('MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_FAILURE','Failed to apply Cross Sel
 define('MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_DROP_SUCCESS','Cross Sell database extensions removed');
 define('MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_DROP_FAILURE','Failed to remove Cross Sell database extensions');
 define('MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_DROP_DATA','Cross Sell data exists - databse extensions remain');
-define('MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_OK','Your files are up to date and consistent');
+define('MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_OK','Module version changed from %s to %s.');
+define('MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_SAME','Module version %s');
+define('MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_NOK','Module version older than database');
 define('MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_FAIL','Version problems: %s');
 define('MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_OK','Additional files all found');
-define('MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_FAIL','Additional files problems: %s');
+define('MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_FAIL','Additional files not found: %s');
 define('MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_OK','File edits all found');
 define('MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_FAIL','File edit problems: %s');
