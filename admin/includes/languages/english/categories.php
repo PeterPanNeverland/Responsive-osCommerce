@@ -100,4 +100,15 @@ define('ERROR_CANNOT_LINK_TO_SAME_CATEGORY', 'Error: Can not link products in th
 define('ERROR_CATALOG_IMAGE_DIRECTORY_NOT_WRITEABLE', 'Error: Catalog images directory is not writeable: ' . DIR_FS_CATALOG_IMAGES);
 define('ERROR_CATALOG_IMAGE_DIRECTORY_DOES_NOT_EXIST', 'Error: Catalog images directory does not exist: ' . DIR_FS_CATALOG_IMAGES);
 define('ERROR_CANNOT_MOVE_CATEGORY_TO_PARENT', 'Error: Category cannot be moved into child category.');
+/*** Begin Header Tags SEO ***/
+define('TEXT_PRODUCT_METTA_INFO', 'Header Tags SEO Meta Tag Data');
+define('TEXT_PRODUCTS_BREADCRUMB', 'Breadcrumb Text');
+define('TEXT_PRODUCTS_PAGE_TITLE', 'Title Tag');
+define('TEXT_PRODUCTS_PAGE_TITLE_ALT', 'Title Tag - Alternate');
+define('TEXT_PRODUCTS_PAGE_TITLE_URL', 'Title Tag - URL');
+define('TEXT_PRODUCTS_HEADER_DESCRIPTION', 'Meta Description');
+define('TEXT_PRODUCTS_KEYWORDS', 'Meta Keywords');
+define('TEXT_PRODUCTS_LISTING_TEXT', 'Product Listing Text');
+define('TEXT_PRODUCTS_SUB_TEXT', 'Product Page Sub Text');
+/*** End Header Tags SEO ***/
 ?>

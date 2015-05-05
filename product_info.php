@@ -23,6 +23,9 @@
 
   require(DIR_WS_INCLUDES . 'template_top.php');
 
+  /*** Begin Header Tags SEO ***/  
+  echo "<a name=\"\$header_tags_array['title']\"></a>";
+  /*** End Header Tags SEO ***/ 
   if ($product_check['total'] < 1) {
 ?>
 
@@ -38,8 +41,12 @@
 
 <?php
   } else {
-    $product_info_query = tep_db_query("select p.products_id, pd.products_name, pd.products_description, p.products_model, p.products_quantity, p.products_image, pd.products_url, p.products_price, p.products_tax_class_id, p.products_date_added, p.products_date_available, p.manufacturers_id from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_status = '1' and p.products_id = '" . (int)$HTTP_GET_VARS['products_id'] . "' and pd.products_id = p.products_id and pd.language_id = '" . (int)$languages_id . "'");
+    /*** Begin Header Tags SEO ***/
+    $product_info_query = tep_db_query("select p.products_id, pd.products_name, pd.products_description, p.products_model, p.products_quantity, p.products_image, pd.products_url, p.products_price, p.products_tax_class_id, p.products_date_added, p.products_date_available, p.manufacturers_id, pd.products_head_sub_text from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_status = '1' and p.products_id = '" . (int)$HTTP_GET_VARS['products_id'] . "' and pd.products_id = p.products_id and pd.language_id = '" . (int)$languages_id . "'");
     $product_info = tep_db_fetch_array($product_info_query);
+    
+    $product_info['products_name'] = $header_tags_array['title_alt'];
+    /*** End Header Tags SEO ***/ 
 
     tep_db_query("update " . TABLE_PRODUCTS_DESCRIPTION . " set products_viewed = products_viewed+1 where products_id = '" . (int)$HTTP_GET_VARS['products_id'] . "' and language_id = '" . (int)$languages_id . "'");
 
@@ -143,7 +150,9 @@
 ?>
 
 <div itemprop="description">
-  <?php echo stripslashes($product_info['products_description']); ?>
+<?php /*** Begin Header Tags SEO ***/ ?>
+<?php echo HTS_Highlight(stripslashes($product_info['products_description']), $header_tags_array['keywords']); ?>
+<?php /*** End Header Tags SEO ***/ ?>
 </div>
 
 <?php
@@ -233,6 +242,24 @@
 
 </div>
 
+      <?php /*** Begin Header Tags SEO ***/
+      if (tep_not_null($product_info['products_head_sub_text'])) {
+          echo '<div class="hts_sub_text" style="padding:10px 0;">' . $product_info['products_head_sub_text'] . '</div>';
+      }
+
+      if (HEADER_TAGS_DISPLAY_CURRENTLY_VIEWING == 'true') {
+          echo '<div id="hts_viewing">' .TEXT_VIEWING;
+          $header_tags_array['title'] = (tep_not_null($header_tags_array['title']) ? $header_tags_array['title'] : $product_info['products_name']);
+          echo '<a title="' . $header_tags_array['title'] . '" href="' . tep_href_link(FILENAME_PRODUCT_INFO, 'products_id=' . $product_info['products_id'], 'NONSSL') . '"/# ' . $header_tags_array['title'] . '">' . $header_tags_array['title'] . '</a>';
+          echo '</div>';
+      }
+      if (HEADER_TAGS_DISPLAY_SOCIAL_BOOKMARKS == 'true') {
+        echo '<div style="float:right; margin-top:5px; margin-right:4px;">';
+        include(DIR_WS_MODULES . 'header_tags_social_bookmarks.php');
+        echo '</div>';
+      }
+      /*** End Header Tags SEO ***/
+      ?>
 </div>
 
 </form>

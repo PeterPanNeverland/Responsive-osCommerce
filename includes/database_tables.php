@@ -57,4 +57,13 @@
   define('TABLE_ZONES_TO_GEO_ZONES', 'zones_to_geo_zones');
   define('TABLE_WHOS_ONLINE', 'whos_online');
   define('TABLE_ZONES', 'zones');
+  /*** Begin Header Tags SEO ***/
+  define('TABLE_HEADERTAGS', 'headertags');
+  define('TABLE_HEADERTAGS_CACHE', 'headertags_cache');
+  define('TABLE_HEADERTAGS_DEFAULT', 'headertags_default');
+  define('TABLE_HEADERTAGS_KEYWORDS', 'headertags_keywords');  
+  define('TABLE_HEADERTAGS_SEARCH', 'headertags_search');
+  define('TABLE_HEADERTAGS_SILO', 'headertags_silo');
+  define('TABLE_HEADERTAGS_SOCIAL', 'headertags_social');  
+  /*** End Header Tags SEO ***/
 ?>

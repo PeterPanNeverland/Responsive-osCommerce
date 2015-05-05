@@ -127,6 +127,28 @@
     } else {
       $prod_list_contents .= '    <a href="' . tep_href_link(FILENAME_PRODUCT_INFO, ($cPath ? 'cPath=' . $cPath . '&' : '') . 'products_id=' . $listing['products_id']) . '">' . $listing['products_name'] . '</a>';
     }
+    
+    /*** Begin Header Tags SEO ***/
+    $lc_add = '';
+    $hts_listing_query = tep_db_query("select products_head_listing_text, products_description from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id = " . (int)$listing['products_id'] . " and language_id = " . (int)$languages_id);
+    if (tep_db_num_rows($hts_listing_query) > 0) {              
+        $seeMore = '';
+        switch (HEADER_TAGS_DISPLAY_SEE_MORE) {
+            case 'off': break;
+            case 'short': $seeMore = '...' . TEXT_SEE_MORE; break;
+            case 'full': $seeMore = '...' . sprintf(TEXT_SEE_MORE_FULL, $listing['products_name']); break;
+        }            
+        $hts_listing = tep_db_fetch_array($hts_listing_query);
+        if (tep_not_null($hts_listing['products_head_listing_text'])) {
+            $lc_add .= '<br /><span class="hts_listing_text">' . $hts_listing['products_head_listing_text'] . '<a href="' . tep_href_link(FILENAME_PRODUCT_INFO, ($cPath ? 'cPath=' . $cPath . '&' : '') . 'products_id=' . (int)$listing['products_id']) . '">' . $seeMore . '</a></span>';
+        } else if (HEADER_TAGS_ENABLE_AUTOFILL_LISTING_TEXT == 'true') {
+            $text = sprintf("%s...%s", substr(stripslashes(strip_tags($hts_listing['products_description'])), 0, 100), '<a href="' . tep_href_link(FILENAME_PRODUCT_INFO, ($cPath ? 'cPath=' . $cPath . '&' : '') . 'products_id=' . (int)$listing['products_id']) . '">' . $seeMore . '</a>');
+            $lc_add = '<br /><span class="hts_listing_text">' . $text . '</span>';
+        }
+    }     
+    $prod_list_contents .= $lc_add;
+    /*** End Header Tags SEO ***/
+            
     $prod_list_contents .= '      </h2>';
 
     $prod_list_contents .= '      <p class="group inner list-group-item-text">' . strip_tags($listing['products_description'], '<br>') . '&hellip;</p><div class="clearfix"></div>';

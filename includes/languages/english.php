@@ -276,3 +276,12 @@ define('PRODUCT_SUBSCRIBED', '%s has been added to your Notification List');
 define('PRODUCT_UNSUBSCRIBED', '%s has been removed from your Notification List');
 define('PRODUCT_ADDED', '%s has been added to your Cart');
 define('PRODUCT_REMOVED', '%s has been removed from your Cart');
+
+/*** Begin Header Tags SEO ***/
+define('BOX_HEADING_HEADERTAGS_TAGCLOUD', 'Popular Searches');
+define('TEXT_SEE_MORE', 'see more');
+define('TEXT_SEE_MORE_FULL', 'see more about %s');
+define('HTS_OG_AVAILABLE_STOCK', 'Available Stock');
+define('HTS_OG_PRICE', 'Price');
+/*** End Header Tags SEO ***/
+
