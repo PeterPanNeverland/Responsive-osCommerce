@@ -33,7 +33,7 @@
     }
 
     function execute() {
-      global $oscTemplate;
+      global $oscTemplate, $header_tags_array;
       
       $content_width = (int)MODULE_CONTENT_HEADER_LOGO_CONTENT_WIDTH;
       

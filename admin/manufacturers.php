@@ -48,10 +48,27 @@
         $languages = tep_get_languages();
         for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
           $manufacturers_url_array = $HTTP_POST_VARS['manufacturers_url'];
+          /*** Begin Header Tags SEO ***/
+          $manufacturers_htc_title_array = $HTTP_POST_VARS['manufacturers_htc_title_tag'];
+          $manufacturers_htc_title_alt_array = $HTTP_POST_VARS['manufacturers_htc_title_tag_alt'];
+          $manufacturers_htc_title_url_array = $HTTP_POST_VARS['manufacturers_htc_title_tag_url'];
+          $manufacturers_htc_desc_array = $HTTP_POST_VARS['manufacturers_htc_desc_tag'];
+          $manufacturers_htc_keywords_array = $HTTP_POST_VARS['manufacturers_htc_keywords_tag'];
+          $manufacturers_htc_description_array = $HTTP_POST_VARS['manufacturers_htc_description'];
+          $manufacturers_htc_breadcrumb_array = $HTTP_POST_VARS['manufacturers_htc_breadcrumb_text'];
+          /*** End Header Tags SEO ***/         
           $language_id = $languages[$i]['id'];
 
-          $sql_data_array = array('manufacturers_url' => tep_db_prepare_input($manufacturers_url_array[$language_id]));
-
+         /*** Begin Header Tags SEO ***/
+          $sql_data_array = array('manufacturers_url' => tep_db_prepare_input($manufacturers_url_array[$language_id]),
+           'manufacturers_htc_title_tag' => (tep_not_null($manufacturers_htc_title_array[$language_id]) ? tep_db_prepare_input(strip_tags($manufacturers_htc_title_array[$language_id])) : strip_tags($manufacturers_name)),
+           'manufacturers_htc_title_tag_alt' => (tep_not_null($manufacturers_htc_title_alt_array[$language_id]) ? tep_db_prepare_input(strip_tags($manufacturers_htc_title_alt_array[$language_id])) : strip_tags($manufacturers_name)),
+           'manufacturers_htc_title_tag_url' => (tep_not_null($manufacturers_htc_title_alt_array[$language_id]) ? tep_db_prepare_input(strip_tags($manufacturers_htc_title_url_array[$language_id])) : strip_tags($manufacturers_name)),
+           'manufacturers_htc_desc_tag' => (tep_not_null($manufacturers_htc_desc_array[$language_id]) ? tep_db_prepare_input($manufacturers_htc_desc_array[$language_id]) : $manufacturers_name),
+           'manufacturers_htc_keywords_tag' => (tep_not_null($manufacturers_htc_keywords_array[$language_id]) ? tep_db_prepare_input(strip_tags($manufacturers_htc_keywords_array[$language_id])) : strip_tags($manufacturers_name)),
+           'manufacturers_htc_description' => tep_db_prepare_input($manufacturers_htc_description_array[$language_id]),
+           'manufacturers_htc_breadcrumb_text' => (tep_not_null($manufacturers_htc_breadcrumb_array[$language_id]) ? tep_db_prepare_input(strip_tags($manufacturers_htc_breadcrumb_array[$language_id])) : strip_tags($manufacturers_name)));
+          /*** End Header Tags SEO ***/         
           if ($action == 'insert') {
             $insert_sql_data = array('manufacturers_id' => $manufacturers_id,
                                      'languages_id' => $language_id);
@@ -68,6 +85,13 @@
           tep_reset_cache_block('manufacturers');
         }
 
+        /*** Begin Header Tags SEO ***/
+        if (HEADER_TAGS_ENABLE_CACHE != 'None') {  
+          require_once(DIR_WS_FUNCTIONS . 'header_tags.php');
+          ResetCache_HeaderTags('index.php', 'm_' . $manufacturers_id);
+        }
+        /*** End Header Tags SEO ***/
+          
         tep_redirect(tep_href_link(FILENAME_MANUFACTURERS, (isset($HTTP_GET_VARS['page']) ? 'page=' . $HTTP_GET_VARS['page'] . '&' : '') . 'mID=' . $manufacturers_id));
         break;
       case 'deleteconfirm':
@@ -98,6 +122,13 @@
           tep_reset_cache_block('manufacturers');
         }
 
+        /*** Begin Header Tags SEO ***/
+        if (HEADER_TAGS_ENABLE_CACHE != 'None') {  
+          require_once(DIR_WS_FUNCTIONS . 'header_tags.php');
+          ResetCache_HeaderTags('index.php', 'm_' . $manufacturers_id);
+        }
+        /*** End Header Tags SEO ***/
+                
         tep_redirect(tep_href_link(FILENAME_MANUFACTURERS, 'page=' . $HTTP_GET_VARS['page']));
         break;
     }
@@ -124,7 +155,9 @@
                 <td class="dataTableHeadingContent" align="right"><?php echo TABLE_HEADING_ACTION; ?>&nbsp;</td>
               </tr>
 <?php
-  $manufacturers_query_raw = "select manufacturers_id, manufacturers_name, manufacturers_image, date_added, last_modified from " . TABLE_MANUFACTURERS . " order by manufacturers_name";
+  /*** Begin Header Tags SEO ***/
+  $manufacturers_query_raw = "select m.manufacturers_id, m.manufacturers_name, m.manufacturers_image, m.date_added, m.last_modified, mi.manufacturers_htc_title_tag, mi.manufacturers_htc_title_tag_alt, mi.manufacturers_htc_title_tag_url from " . TABLE_MANUFACTURERS . " m LEFT JOIN " .  TABLE_MANUFACTURERS_INFO . " mi on m.manufacturers_id = mi.manufacturers_id where mi.languages_id = '".$languages_id ."' order by m.manufacturers_name";
+/*** End Header Tags SEO ***/
   $manufacturers_split = new splitPageResults($HTTP_GET_VARS['page'], MAX_DISPLAY_SEARCH_RESULTS, $manufacturers_query_raw, $manufacturers_query_numrows);
   $manufacturers_query = tep_db_query($manufacturers_query_raw);
   while ($manufacturers = tep_db_fetch_array($manufacturers_query)) {
@@ -183,9 +216,27 @@
       $languages = tep_get_languages();
       for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
         $manufacturer_inputs_string .= '<br />' . tep_image(tep_catalog_href_link(DIR_WS_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], '', 'SSL'), $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_url[' . $languages[$i]['id'] . ']');
+        /*** Begin Header Tags SEO ***/ 
+        $manufacturer_htc_title_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag[' . $languages[$i]['id'] . ']');
+        $manufacturer_htc_title_alt_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag_alt[' . $languages[$i]['id'] . ']');
+        $manufacturer_htc_title_url_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag_url[' . $languages[$i]['id'] . ']');
+        $manufacturer_htc_breadcrumb_string .= '<br>' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_breadcrumb_text[' . $languages[$i]['id'] . ']');
+        $manufacturer_htc_desc_string .= '<br>' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_desc_tag[' . $languages[$i]['id'] . ']');
+        $manufacturer_htc_keywords_string .= '<br>' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_keywords_tag[' . $languages[$i]['id'] . ']');
+        $manufacturer_htc_description_string .= '<br>' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_textarea_field('manufacturers_htc_description[' . $languages[$i]['id'] . ']', 'hard', 30, 5, '');
+        /*** End Header Tags SEO ***/
       }
 
       $contents[] = array('text' => '<br />' . TEXT_MANUFACTURERS_URL . $manufacturer_inputs_string);
+      /*** Begin Header Tags SEO ***/
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title' . $manufacturer_htc_title_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title Alt' . $manufacturer_htc_title_alt_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title URL' . $manufacturer_htc_title_url_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Breadcrumb' . $manufacturer_htc_breadcrumb_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Description' . $manufacturer_htc_desc_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Keywords' . $manufacturer_htc_keywords_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Description' . $manufacturer_htc_description_string);
+      /*** End Header Tags SEO ***/
       $contents[] = array('align' => 'center', 'text' => '<br />' . tep_draw_button(IMAGE_SAVE, 'disk', null, 'primary') . tep_draw_button(IMAGE_CANCEL, 'close', tep_href_link(FILENAME_MANUFACTURERS, 'page=' . $HTTP_GET_VARS['page'] . '&mID=' . $HTTP_GET_VARS['mID'])));
       break;
     case 'edit':
@@ -200,9 +251,27 @@
       $languages = tep_get_languages();
       for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
         $manufacturer_inputs_string .= '<br />' . tep_image(tep_catalog_href_link(DIR_WS_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], '', 'SSL'), $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_url[' . $languages[$i]['id'] . ']', tep_get_manufacturer_url($mInfo->manufacturers_id, $languages[$i]['id']));
+        /*** Begin Header Tags SEO ***/
+        $manufacturer_htc_title_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag[' . $languages[$i]['id'] . ']', tep_get_manufacturer_htc_title($mInfo->manufacturers_id, $languages[$i]['id']));
+        $manufacturer_htc_title_alt_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag_alt[' . $languages[$i]['id'] . ']', tep_get_manufacturer_htc_title_alt($mInfo->manufacturers_id, $languages[$i]['id']));
+        $manufacturer_htc_title_url_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag_url[' . $languages[$i]['id'] . ']', tep_get_manufacturer_htc_title_url($mInfo->manufacturers_id, $languages[$i]['id']));
+        $manufacturer_htc_breadcrumb_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_breadcrumb_text[' . $languages[$i]['id'] . ']', tep_get_manufacturer_htc_breadcrumb($mInfo->manufacturers_id, $languages[$i]['id']));
+        $manufacturer_htc_desc_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_desc_tag[' . $languages[$i]['id'] . ']', tep_get_manufacturer_htc_desc($mInfo->manufacturers_id, $languages[$i]['id']));
+        $manufacturer_htc_keywords_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_keywords_tag[' . $languages[$i]['id'] . ']', tep_get_manufacturer_htc_keywords($mInfo->manufacturers_id, $languages[$i]['id']));
+        $manufacturer_htc_description_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_textarea_field('manufacturers_htc_description[' . $languages[$i]['id'] . ']', 'hard', 30, 5, tep_get_manufacturer_htc_description($mInfo->manufacturers_id, $languages[$i]['id']));
+        /*** End Header Tags SEO ***/
       }
 
       $contents[] = array('text' => '<br />' . TEXT_MANUFACTURERS_URL . $manufacturer_inputs_string);
+      /*** Begin Header Tags SEO ***/
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title' . $manufacturer_htc_title_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title Alt' . $manufacturer_htc_title_alt_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title URL' . $manufacturer_htc_title_url_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Breadcrumb' . $manufacturer_htc_breadcrumb_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Description' . $manufacturer_htc_desc_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Keywords' . $manufacturer_htc_keywords_string);
+      $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Description' . $manufacturer_htc_description_string);
+      /*** End Header Tags SEO ***/
       $contents[] = array('align' => 'center', 'text' => '<br />' . tep_draw_button(IMAGE_SAVE, 'disk', null, 'primary') . tep_draw_button(IMAGE_CANCEL, 'close', tep_href_link(FILENAME_MANUFACTURERS, 'page=' . $HTTP_GET_VARS['page'] . '&mID=' . $mInfo->manufacturers_id)));
       break;
     case 'delete':

@@ -53,4 +53,12 @@
   define('FILENAME_VERSION_CHECK', 'version_check.php');
   define('FILENAME_WHOS_ONLINE', 'whos_online.php');
   define('FILENAME_ZONES', 'zones.php');
+  /*** Begin Header Tags SEO ***/
+  define('FILENAME_HEADER_TAGS_SEO', 'header_tags_seo.php');
+  define('FILENAME_HEADER_TAGS_FILL_TAGS', 'header_tags_fill_tags.php');
+  define('FILENAME_HEADER_TAGS_KEYWORDS', 'header_tags_seo_keywords.php');
+  define('FILENAME_HEADER_TAGS_SILO', 'header_tags_seo_silo.php');
+  define('FILENAME_HEADER_TAGS_SOCIAL', 'header_tags_seo_social.php');  
+  define('FILENAME_HEADER_TAGS_TEST', 'header_tags_test.php');  
+  /*** End Header Tags SEO ***/
 ?>

@@ -11,3 +11,7 @@
 */
 
 define('TEXT_PRODUCT_NOT_FOUND', 'Product not found!');
+/*** Begin Header Tags SEO ***/ 
+define('TEXT_VIEWING', 'Currently viewing:');
+/*** End Header Tags SEO ***/   
+?>

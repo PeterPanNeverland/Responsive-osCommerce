@@ -37,6 +37,48 @@ $.datepicker.setDefaults($.datepicker.regional['<?php echo JQUERY_DATEPICKER_I18
 <script type="text/javascript" src="<?php echo tep_catalog_href_link('ext/flot/jquery.flot.time.min.js', '', 'SSL'); ?>"></script>
 <link rel="stylesheet" type="text/css" href="includes/stylesheet.css">
 <script type="text/javascript" src="includes/general.js"></script>
+<?php
+/*** Begin Header Tags SEO ***/
+?>
+<link rel="stylesheet" type="text/css" href="includes/headertags_seo_styles.css">
+<?php
+switch (HEADER_TAGS_ENABLE_HTML_EDITOR) {
+   case 'CKEditor':
+     echo '<script type="text/javascript" src="./ckeditor/ckeditor.js"></script>';
+   break;
+
+   case 'FCKEditor':
+   break;
+         
+   case 'TinyMCE':
+     if (HEADER_TAGS_ENABLE_EDITOR_CATEGORIES == 'true'   || 
+         HEADER_TAGS_ENABLE_EDITOR_PRODUCTS == 'true'     ||
+         HEADER_TAGS_ENABLE_EDITOR_LISTING_TEXT == 'true' ||
+         HEADER_TAGS_ENABLE_EDITOR_SUB_TEXT == 'true'      
+        )
+     {  
+       if ($action == 'new_product' || $action == 'new_category' || $action == 'edit_category') { // No need to put JS on all pages.
+         $languages = tep_get_languages(); // Get all languages
+       // Build list of textareas to convert
+         $str = '';
+         for ($i = 0, $n = sizeof($languages); $i < $n; $i++) {
+           if (HEADER_TAGS_ENABLE_EDITOR_CATEGORIES == 'true') $str .= "categories_htc_description[".$languages[$i]['id']."],";
+           if (HEADER_TAGS_ENABLE_EDITOR_PRODUCTS == 'true') $str .= "products_description[".$languages[$i]['id']."],";
+           if (HEADER_TAGS_ENABLE_EDITOR_LISTING_TEXT == 'true') $str .= "products_head_listing_text[".$languages[$i]['id']."],";
+           if (HEADER_TAGS_ENABLE_EDITOR_SUB_TEXT == 'true') $str .= "products_head_sub_text[".$languages[$i]['id']."],";
+         }  //end for each language
+         $mce_str = rtrim ($str,","); // Removed the last comma from the string.
+       // You can add more textareas to convert in the $str, be careful that they are all separated by a comma.
+         echo '<script language="javascript" type="text/javascript" src="includes/javascript/tiny_mce/tiny_mce.js"></script>';
+         include "includes/javascript/tiny_mce/general.php";
+       } 
+     }
+   break;
+
+   default: break; 
+}     
+/*** End Header Tags SEO ***/
+?>
 </head>
 <body>
 

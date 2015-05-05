@@ -477,31 +477,42 @@
   $breadcrumb->add(HEADER_TITLE_TOP, HTTP_SERVER);
   $breadcrumb->add(HEADER_TITLE_CATALOG, tep_href_link(FILENAME_DEFAULT));
 
+/*** Begin Header Tags SEO ***/
 // add category names or the manufacturer name to the breadcrumb trail
   if (isset($cPath_array)) {
     $n=sizeof($cPath_array);
     for ($i=0; $i<$n; $i++) {
-      $categories_query = tep_db_query("select categories_name from " . TABLE_CATEGORIES_DESCRIPTION . " where categories_id = '" . (int)$cPath_array[$i] . "' and language_id = '" . (int)$languages_id . "'");
+      $categories_query = tep_db_query("select IF(categories_htc_breadcrumb_text !='', categories_htc_breadcrumb_text, categories_name) as title from " . TABLE_CATEGORIES_DESCRIPTION . " where categories_id = " . (int)$cPath_array[$i] . " and language_id = " . (int)$languages_id);
       if (tep_db_num_rows($categories_query) > 0) {
         $categories = tep_db_fetch_array($categories_query);
-        $breadcrumb->add($categories['categories_name'], tep_href_link(FILENAME_DEFAULT, 'cPath=' . implode('_', array_slice($cPath_array, 0, ($i+1)))));
+        $breadcrumb->add($categories['title'], tep_href_link(FILENAME_DEFAULT, 'cPath=' . implode('_', array_slice($cPath_array, 0, ($i+1)))));
       } else {
         break;
       }
     }
-  } elseif (isset($HTTP_GET_VARS['manufacturers_id'])) {
-    $manufacturers_query = tep_db_query("select manufacturers_name from " . TABLE_MANUFACTURERS . " where manufacturers_id = '" . (int)$HTTP_GET_VARS['manufacturers_id'] . "'");
+  } elseif (isset($_GET['manufacturers_id'])) {
+    $manufacturers_query = tep_db_query("select IF(mi.manufacturers_htc_breadcrumb_text !='',mi.manufacturers_htc_breadcrumb_text, m.manufacturers_name) as title from " . TABLE_MANUFACTURERS . " m left join " . TABLE_MANUFACTURERS_INFO . " mi on m.manufacturers_id=mi.manufacturers_id where m.manufacturers_id= " . (int)$_GET['manufacturers_id'] . " AND languages_id = " . (int)$languages_id);
     if (tep_db_num_rows($manufacturers_query)) {
       $manufacturers = tep_db_fetch_array($manufacturers_query);
-      $breadcrumb->add($manufacturers['manufacturers_name'], tep_href_link(FILENAME_DEFAULT, 'manufacturers_id=' . $HTTP_GET_VARS['manufacturers_id']));
+      $breadcrumb->add($manufacturers['title'], tep_href_link(FILENAME_DEFAULT, 'manufacturers_id=' . $_GET['manufacturers_id']));
     }
   }
 
-// add the products model to the breadcrumb trail
-  if (isset($HTTP_GET_VARS['products_id'])) {
-    $model_query = tep_db_query("select products_model from " . TABLE_PRODUCTS . " where products_id = '" . (int)$HTTP_GET_VARS['products_id'] . "'");
-    if (tep_db_num_rows($model_query)) {
-      $model = tep_db_fetch_array($model_query);
+ // add the products name to the breadcrumb trail
+ if (isset($_GET['products_id'])) {
+     $addModel = false;
+     $db_query = tep_db_query("select 1 from " . TABLE_HEADERTAGS . " where page_name = '" . tep_db_input(basename($_SERVER['SCRIPT_FILENAME'])) . "' and append_model=1");
+     if (tep_db_num_rows($db_query)) {
+         $addModel = true;
       $breadcrumb->add($model['products_model'], tep_href_link(FILENAME_PRODUCT_INFO, 'cPath=' . $cPath . '&products_id=' . $HTTP_GET_VARS['products_id']));
-    }
+     }
+     
+     $products_query = tep_db_query("select IF(pd.products_head_breadcrumb_text !='', pd.products_head_breadcrumb_text,pd.products_name) as title, p.products_model as model from " . TABLE_PRODUCTS . " p left join " . TABLE_PRODUCTS_DESCRIPTION . " pd on p.products_id = pd.products_id where p.products_id = " . (int)$_GET['products_id'] . " and pd.language_id =" .  (int)$languages_id);
+     if (tep_db_num_rows($products_query)) {
+         $products = tep_db_fetch_array($products_query);          
+         $title = ($addModel && tep_not_null($products['model']) ? $products['model'] . ' - ' . $products['title'] : $products['title']);
+         $args = isset($_GET['reviews_id']) ? tep_get_all_get_params() : 'cPath=' . $cPath . '&products_id=' . $_GET['products_id'] ;
+         $breadcrumb->add($title, tep_href_link(basename($_SERVER['SCRIPT_FILENAME']), $args));
+     }
   }
+/*** End Header Tags SEO ***/

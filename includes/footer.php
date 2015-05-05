@@ -28,6 +28,17 @@
         <?php echo $oscTemplate->getContent('footer_suffix'); ?>
       </div>
     </div>
+ <?php
+/*** Begin Header Tags SEO ***/
+if ($request_type == 'NONSSL') { 
+  if (HEADER_TAGS_DISPLAY_TAG_CLOUD == 'true') {
+      echo '<div id="hts_footer">';
+      include(DIR_WS_INCLUDES . 'headertags_seo_tagcloud_footer.php');
+      echo '</div>';
+  }
+}
+/*** End Header Tags SEO ***/
+?>  
   </div>
 </footer>
 

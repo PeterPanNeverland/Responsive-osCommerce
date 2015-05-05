@@ -32,7 +32,7 @@
     }
 
     function execute() {
-      global $oscTemplate, $product_info;
+      global $oscTemplate, $product_info, $header_tags_array;
       
       $content_width  = (int)MODULE_CONTENT_PRODUCT_INFO_DESCRIPTION_CONTENT_WIDTH;
         
