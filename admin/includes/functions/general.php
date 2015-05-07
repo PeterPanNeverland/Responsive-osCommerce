@@ -997,12 +997,13 @@
     }
     tep_db_query("delete from " . TABLE_REVIEWS . " where products_id = '" . (int)$product_id . "'");
 	
+// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-1
     tep_db_query("DELETE FROM products_xsell WHERE products_id = '" . (int)$product_id . "' OR xsell_id = '" . (int)$product_id . "'");
 
     if (USE_CACHE == 'true') {
       tep_reset_cache_block('categories');
       tep_reset_cache_block('also_purchased');
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-1
+// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-2
 	  tep_reset_product_cache('xsell_products',tep_get_products_to_reset($product_id));
     }
   }
@@ -1054,7 +1055,7 @@
     }
   }
 
-// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-2
+// XSELL-ADM-GENERAL-FUNCTIONS-EDIT-3
 // Extra functions - reset individual product cache(s)
 function tep_get_products_to_reset($product_id) {
 	$return = array();
