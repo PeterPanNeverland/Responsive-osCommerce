@@ -8,12 +8,12 @@ CREATE TABLE IF NOT EXISTS `products_extra_fields` (
   `google_only` char(1) collate utf8_unicode_ci NOT NULL default '0',
   `searchable` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`products_extra_fields_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `products_to_products_extra_fields` (
   `products_id` int(11) NOT NULL default '0',
   `products_extra_fields_id` int(11) NOT NULL default '0',
   `products_extra_fields_value` text,
   PRIMARY KEY  (`products_id`,`products_extra_fields_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) AUTO_INCREMENT=1 ;
 

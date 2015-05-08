@@ -16,6 +16,8 @@ define('TABLE_PRODUCTS_EXTRA_FIELDS','products_extra_fields');
 define('TABLE_PRODUCTS_TO_PRODUCTS_EXTRA_FIELDS','products_to_products_extra_fields');
 require('includes/application_top.php');
 
+if (tep_extra_fields_check_db()) $messageStack->add(MSG_DB_DONE, 'success');
+
 $action = (isset($_GET['action']) ? $_GET['action'] : '');
 // Has "Remove" button been pressed?
 if (isset($_POST['remove_x']) || isset($_POST['remove_y'])) $action='remove';

@@ -36,4 +36,6 @@ you want to have a field that will be used for all products, write "all" and not
 
 define ('ENTRY_YES', 'Yes');
 define ('ENTRY_NO', 'No');
+
+define('MSG_DB_DONE', 'Database changes applied.');
 ?>

@@ -15,6 +15,9 @@
   require(DIR_WS_CLASSES . 'currencies.php');
   $currencies = new currencies();
 
+// XTRA-FIELDS-ADM-CAT-EDIT-1
+	if (tep_extra_fields_check_db()) $messageStack->add(MSG_DB_DONE, 'success');
+
   $action = (isset($HTTP_GET_VARS['action']) ? $HTTP_GET_VARS['action'] : '');
 
   if (tep_not_null($action)) {
@@ -264,7 +267,7 @@
           }
         }
 
-// XTRA-FIELDS-ADM-CAT-EDIT-1
+// XTRA-FIELDS-ADM-CAT-EDIT-2
           $extra_fields_query = tep_db_query("SELECT * FROM products_to_products_extra_fields WHERE products_id = " . (int)$products_id);
           while ($products_extra_fields = tep_db_fetch_array($extra_fields_query)) {
             $extra_product_entry[$products_extra_fields['products_extra_fields_id']] = $products_extra_fields['products_extra_fields_value'];
@@ -425,7 +428,7 @@
 
     if (isset($HTTP_GET_VARS['pID']) && empty($HTTP_POST_VARS)) {
 
-// XTRA-FIELDS-ADM-CAT-EDIT-2
+// XTRA-FIELDS-ADM-CAT-EDIT-3
       $products_extra_fields_query = tep_db_query("SELECT * FROM products_to_products_extra_fields WHERE products_id=" . (int)$HTTP_GET_VARS['pID']);
       while ($products_extra_fields = tep_db_fetch_array($products_extra_fields_query)) {
         $extra_field[$products_extra_fields['products_extra_fields_id']] = $products_extra_fields['products_extra_fields_value'];
@@ -710,7 +713,7 @@ function showPiDelConfirm(piId) {
           </tr>
 
 <?php
-// XTRA-FIELDS-ADM-CAT-EDIT-3
+// XTRA-FIELDS-ADM-CAT-EDIT-4
 // BOF Extra Fields Contribution (chapter 1.4)
       // Sort language by ID  
 	  for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
@@ -793,7 +796,7 @@ $('#products_date_available').datepicker({
 		<td class="main">
          <?php 
           echo tep_image(HTTP_CATALOG_SERVER . DIR_WS_CATALOG_IMAGES . $products_image_name, $pInfo->products_name, SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT, 'align="right" hspace="5" vspace="5"');
-// XTRA-FIELDS-ADM-CAT-EDIT-4
+// XTRA-FIELDS-ADM-CAT-EDIT-5
           if ($HTTP_GET_VARS['read'] == 'only') {
             $products_extra_fields_query = tep_db_query("SELECT * FROM products_to_products_extra_fields WHERE products_id=" . (int)$HTTP_GET_VARS['pID']);
             while ($products_extra_fields = tep_db_fetch_array($products_extra_fields_query)) {
@@ -869,7 +872,7 @@ $('#products_date_available').datepicker({
       <tr>
         <td align="right" class="smallText"><?php echo tep_draw_button(IMAGE_BACK, 'triangle-1-w', tep_href_link($back_url, $back_url_params)); ?></td>
 <?php
-// XTRA-FIELDS-ADM-CAT-EDIT-5
+// XTRA-FIELDS-ADM-CAT-EDIT-6
 // BOF Extra Fields Contribution
       if ($HTTP_POST_VARS['extra_field']) { // Check to see if there are any need to update extra fields.
         foreach ($HTTP_POST_VARS['extra_field'] as $key=>$val) {
@@ -920,7 +923,7 @@ $('#products_date_available').datepicker({
               <tr class="dataTableHeadingRow">
                 <td class="dataTableHeadingContent"><?php echo TABLE_HEADING_CATEGORIES_PRODUCTS; ?></td>
 
-<!-- // XTRA-FIELDS-ADM-CAT-EDIT-6 -->
+<!-- // XTRA-FIELDS-ADM-CAT-EDIT-7 -->
 <!-- BOF Extra Fields Contribution / RELENAT FIELDS -->
 				<td class="dataTableHeadingContent">ID</td>
 <!-- EOF Extra Fields Contribution / RELENAT FIELDS -->
@@ -961,7 +964,7 @@ $('#products_date_available').datepicker({
       }
 ?>
  
-<!-- // XTRA-FIELDS-ADM-CAT-EDIT-7 -->
+<!-- // XTRA-FIELDS-ADM-CAT-EDIT-8 -->
 <!-- BOF Extra Fields Contribution / RELENAT FIELDS -->
 				<td class="dataTableContent" align="left" width="20"><?php echo sprintf ($categories['categories_id']); ?></td>
 <!-- EOF Extra Fields Contribution / RELENAT FIELDS -->
@@ -1003,7 +1006,7 @@ $('#products_date_available').datepicker({
       }
 ?>
 
-<!-- // XTRA-FIELDS-ADM-CAT-EDIT-8 -->
+<!-- // XTRA-FIELDS-ADM-CAT-EDIT-9 -->
 <!-- BOF Extra Fields Contribution / RELENAT FIELDS -->
 				<td class="dataTableContent" align="left" width="20"><?php echo sprintf ($products['products_id']); ?></td>
 <!-- EOF Extra Fields Contribution / RELENAT FIELDS -->

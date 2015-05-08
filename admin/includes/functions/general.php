@@ -1475,4 +1475,36 @@
       return is_writable($file);
     }
   }
+// XTRA-FIELDS-ADM-FNC-GEN-EDIT-2
+// Extra fields - check if database changes have been applied and apply if not
+	function tep_extra_fields_check_db() {
+		if (tep_db_num_rows(tep_db_query('SHOW TABLES LIKE \'products_extra_fields\'')) > 0) { // if the table exists
+			if (tep_db_num_rows(tep_db_query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='". DB_DATABASE . "' AND TABLE_NAME='products_extra_fields' AND COLUMN_NAME LIKE 'searchable'")) != 1 ) { // check if the extra column is there
+				tep_db_query("alter table products_extra_fields add column `searchable` tinyint(1) NOT NULL DEFAULT '0' AFTER `google_only`");
+				return true;
+			} else {
+				return false;
+			}
+		} else { //create necessary tables
+			tep_db_query("CREATE TABLE IF NOT EXISTS `products_extra_fields` (
+  `products_extra_fields_id` int(11) NOT NULL auto_increment,
+  `products_extra_fields_name` varchar(64) collate utf8_unicode_ci NOT NULL default '',
+  `products_extra_fields_order` int(3) NOT NULL default '0',
+  `products_extra_fields_status` tinyint(1) NOT NULL default '1',
+  `languages_id` int(11) NOT NULL default '0',
+  `category_id` text collate utf8_unicode_ci NOT NULL,
+  `google_only` char(1) collate utf8_unicode_ci NOT NULL default '0',
+  `searchable` tinyint(1) NOT NULL default '0',
+  PRIMARY KEY  (`products_extra_fields_id`)
+) AUTO_INCREMENT=1");
+			tep_db_query("CREATE TABLE IF NOT EXISTS `products_to_products_extra_fields` (
+  `products_id` int(11) NOT NULL default '0',
+  `products_extra_fields_id` int(11) NOT NULL default '0',
+  `products_extra_fields_value` text,
+  PRIMARY KEY  (`products_id`,`products_extra_fields_id`)
+) AUTO_INCREMENT=1");
+			return true;
+		}
+	}
+// Extra Fields EOF
 ?>
