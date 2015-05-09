@@ -33,7 +33,7 @@ function xsell_check_data(){
 	$result = tep_db_fetch_array($query);
 	return ($result['total'] > 0);
 }
-function clean_db() {
+function xsell_clean_db() {
 	return tep_db_query('DROP TABLE products_xsell');
 }
 ?>
