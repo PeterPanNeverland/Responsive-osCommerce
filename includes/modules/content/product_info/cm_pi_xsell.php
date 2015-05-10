@@ -4,7 +4,7 @@
 
 	TO DO:
 	- tidy up install / remove functions... success/fail messaging is wrong
-	- add some validation functions for complete install
+	- [done] add some validation functions for complete install
 	- remove deprecated constants
 
   osCommerce, Open Source E-Commerce Solutions
