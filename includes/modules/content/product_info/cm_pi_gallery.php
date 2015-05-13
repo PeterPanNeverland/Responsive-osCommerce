@@ -58,7 +58,7 @@
                 $photoset_layout .= ($pi_total > 5) ? 5 : $pi_sub;
             }
             
-            $gallery_output .= '<div id="piGal" data-imgcount="' . $photoset_layout . '">';
+            $gallery_output .= '<div class="piGal" data-imgcount="' . $photoset_layout . '">';
             
             $pi_counter = 0;
             $pi_html = array();
@@ -81,7 +81,7 @@
             
         } else {
             
-            $gallery_output .= '<div id="piGal">' .
+            $gallery_output .= '<div class="piGal">' .
                                     tep_image(DIR_WS_IMAGES . $product_info['products_image'], addslashes($product_info['products_name'])) .
                                '</div>';
         }
