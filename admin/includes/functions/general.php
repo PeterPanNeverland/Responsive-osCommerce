@@ -967,9 +967,12 @@
       }
     }
 
-    $product_images_query = tep_db_query("select image from " . TABLE_PRODUCTS_IMAGES . " where products_id = '" . (int)$product_id . "'");
+// PI-GALLERY-CAPTION-EDIT
+    $product_images_query = tep_db_query("select image,id from " . TABLE_PRODUCTS_IMAGES . " where products_id = '" . (int)$product_id . "'");
     if (tep_db_num_rows($product_images_query)) {
       while ($product_images = tep_db_fetch_array($product_images_query)) {
+				tep_db_query("delete from products_image_captions where products_images_id = '" . (int)$product_images['id'] . "'");
+// Caption Edit End
         $duplicate_image_query = tep_db_query("select count(*) as total from " . TABLE_PRODUCTS_IMAGES . " where image = '" . tep_db_input($product_images['image']) . "'");
         $duplicate_image = tep_db_fetch_array($duplicate_image_query);
 

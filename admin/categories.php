@@ -15,6 +15,18 @@
   require(DIR_WS_CLASSES . 'currencies.php');
   $currencies = new currencies();
 
+// PI-GALLERY-CAPTION-ADM-CAT-EDIT-1
+// check if database change applied and if not, apply
+	$query = tep_db_query('SHOW TABLES LIKE \'products_image_captions\'');
+	if (tep_db_num_rows($query) == 0){
+		tep_db_query('CREATE TABLE products_image_captions (
+		 products_images_id int(11) NOT NULL,
+		 language_id int DEFAULT \'1\' NOT NULL,
+		 image_caption varchar(64),
+		 PRIMARY KEY (products_images_id,language_id)
+		)');
+	}
+
   $action = (isset($HTTP_GET_VARS['action']) ? $HTTP_GET_VARS['action'] : '');
 
   if (tep_not_null($action)) {
@@ -284,6 +296,20 @@
             tep_db_perform(TABLE_PRODUCTS_IMAGES, $sql_data_array, 'update', "products_id = '" . (int)$products_id . "' and id = '" . (int)$matches[1] . "'");
 
             $piArray[] = (int)$matches[1];
+// PI-GALLERY-CAPTION-ADM-CAT-EDIT-2
+            // wipe out existing captions and recreate if required
+						tep_db_query("delete from products_image_captions where products_images_id = '" . (int)$matches[1] . "'");
+						for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
+							$language_id = $languages[$i]['id'];
+							if (isset($_POST['image_caption_' . $matches[1]][$language_id]) && $_POST['image_caption_' . $matches[1]][$language_id] <> '' ) {
+							  $sql_data_array = array('products_images_id' => (int)$matches[1],
+								  'language_id' => (int)$language_id,
+								  'image_caption' => tep_db_prepare_input($_POST['image_caption_' . $matches[1]][$language_id]));
+                tep_db_perform('products_image_captions', $sql_data_array);
+							}
+						}
+// Caption Edit End
+						 
           } elseif (preg_match('/^products_image_large_new_([0-9]+)$/', $key, $matches)) {
 // Insert new large product images
             $sql_data_array = array('products_id' => (int)$products_id,
@@ -300,13 +326,29 @@
               tep_db_perform(TABLE_PRODUCTS_IMAGES, $sql_data_array);
 
               $piArray[] = tep_db_insert_id();
+// PI-GALLERY-CAPTION-ADM-CAT-EDIT-3
+            // create captions if required
+						  $piId = tep_db_insert_id();
+							for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
+								$language_id = $languages[$i]['id'];
+								if (isset($_POST['image_caption_' . $matches[1]][$language_id]) && $_POST['image_caption_' . $matches[1]][$language_id] <> '' ) {
+									$sql_data_array = array('products_images_id' => $piId,
+										'language_id' => (int)$language_id,
+										'image_caption' => tep_db_prepare_input($_POST['image_caption_' . $matches[1]][$language_id]));
+									tep_db_perform('products_image_captions', $sql_data_array);
+								}
+							}
+// Caption Edit End
             }
           }
         }
 
-        $product_images_query = tep_db_query("select image from " . TABLE_PRODUCTS_IMAGES . " where products_id = '" . (int)$products_id . "' and id not in (" . implode(',', $piArray) . ")");
+// PI-GALLERY-CAPTION-ADM-CAT-EDIT-4
+        $product_images_query = tep_db_query("select image, id from " . TABLE_PRODUCTS_IMAGES . " where products_id = '" . (int)$products_id . "' and id not in (" . implode(',', $piArray) . ")");
         if (tep_db_num_rows($product_images_query)) {
           while ($product_images = tep_db_fetch_array($product_images_query)) {
+					  tep_db_query("delete from products_image_captions where products_images_id = '" . (int)$product_images['id'] . "'");
+// Caption Edit End
             $duplicate_image_query = tep_db_query("select count(*) as total from " . TABLE_PRODUCTS_IMAGES . " where image = '" . tep_db_input($product_images['image']) . "'");
             $duplicate_image = tep_db_fetch_array($duplicate_image_query);
 
@@ -354,10 +396,22 @@
               tep_db_query("insert into " . TABLE_PRODUCTS_DESCRIPTION . " (products_id, language_id, products_name, products_description, products_url, products_viewed) values ('" . (int)$dup_products_id . "', '" . (int)$description['language_id'] . "', '" . tep_db_input($description['products_name']) . "', '" . tep_db_input($description['products_description']) . "', '" . tep_db_input($description['products_url']) . "', '0')");
             }
 
-            $product_images_query = tep_db_query("select image, htmlcontent, sort_order from " . TABLE_PRODUCTS_IMAGES . " where products_id = '" . (int)$products_id . "'");
+// PI-GALLERY-CAPTION-ADM-CAT-EDIT-5
+            $product_images_query = tep_db_query("select id, image, htmlcontent, sort_order from " . TABLE_PRODUCTS_IMAGES . " where products_id = '" . (int)$products_id . "'");
             while ($product_images = tep_db_fetch_array($product_images_query)) {
               tep_db_query("insert into " . TABLE_PRODUCTS_IMAGES . " (products_id, image, htmlcontent, sort_order) values ('" . (int)$dup_products_id . "', '" . tep_db_input($product_images['image']) . "', '" . tep_db_input($product_images['htmlcontent']) . "', '" . tep_db_input($product_images['sort_order']) . "')");
+            // create captions if required
+						  $piId = tep_db_insert_id();
+							$caption_query = tep_db_query("select image_caption, language_id from products_image_captions where products_images_id = '" . (int)$product_images['id'] ."'");
+							while ($caption = tep_db_fetch_array($caption_query)) {
+									$sql_data_array = array('products_images_id' => (int)$piId,
+										'language_id' => (int)$caption['language_id'],
+										'image_caption' => tep_db_prepare_input($caption['image_caption']));
+									tep_db_perform('products_image_captions', $sql_data_array);
+							  
+							}
             }
+// Caption Edit End
 
             tep_db_query("insert into " . TABLE_PRODUCTS_TO_CATEGORIES . " (products_id, categories_id) values ('" . (int)$dup_products_id . "', '" . (int)$categories_id . "')");
             $products_id = $dup_products_id;
@@ -409,13 +463,21 @@
 
       $pInfo->objectInfo($product);
 
+// PI-GALLERY-CAPTION-ADM-CAT-EDIT-6
       $product_images_query = tep_db_query("select id, image, htmlcontent, sort_order from " . TABLE_PRODUCTS_IMAGES . " where products_id = '" . (int)$product['products_id'] . "' order by sort_order");
       while ($product_images = tep_db_fetch_array($product_images_query)) {
+        $captions_query = tep_db_query("select language_id, image_caption from products_image_captions where products_images_id = '" . (int)$product_images['id'] . "'");
+				$captions = array();
+				while ($caption = tep_db_fetch_array($captions_query)) {
+				  $captions[$caption['language_id']] = $caption['image_caption'];
+				}
         $pInfo->products_larger_images[] = array('id' => $product_images['id'],
                                                  'image' => $product_images['image'],
                                                  'htmlcontent' => $product_images['htmlcontent'],
-                                                 'sort_order' => $product_images['sort_order']);
+                                                 'sort_order' => $product_images['sort_order'],
+																								 'captions' => $captions);
       }
+// Caption Edit End
     }
 
     $manufacturers_array = array(array('id' => '', 'text' => TEXT_NONE));
@@ -601,7 +663,14 @@ updateGross();
     foreach ($pInfo->products_larger_images as $pi) {
       $pi_counter++;
 
-      echo '                <li id="piId' . $pi_counter . '" class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="float: right;"></span><a href="#" onclick="showPiDelConfirm(' . $pi_counter . ');return false;" class="ui-icon ui-icon-trash" style="float: right;"></a><strong>' . TEXT_PRODUCTS_LARGE_IMAGE . '</strong><br />' . tep_draw_file_field('products_image_large_' . $pi['id']) . '<br /><a href="' . HTTP_CATALOG_SERVER . DIR_WS_CATALOG_IMAGES . $pi['image'] . '" target="_blank">' . $pi['image'] . '</a><br /><br />' . TEXT_PRODUCTS_LARGE_IMAGE_HTML_CONTENT . '<br />' . tep_draw_textarea_field('products_image_htmlcontent_' . $pi['id'], 'soft', '70', '3', $pi['htmlcontent']) . '</li>';
+// PI-GALLERY-CAPTION-ADM-CAT-EDIT-7
+      
+      echo '                <li id="piId' . $pi_counter . '" class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="float: right;"></span><a href="#" onclick="showPiDelConfirm(' . $pi_counter . ');return false;" class="ui-icon ui-icon-trash" style="float: right;"></a><strong>' . TEXT_PRODUCTS_LARGE_IMAGE . '</strong><br />' . tep_draw_file_field('products_image_large_' . $pi['id']) . '<br /><a href="' . HTTP_CATALOG_SERVER . DIR_WS_CATALOG_IMAGES . $pi['image'] . '" target="_blank">' . $pi['image'] . '</a><br /><br />' . TEXT_PRODUCTS_LARGE_IMAGE_HTML_CONTENT . '<br />' . tep_draw_textarea_field('products_image_htmlcontent_' . $pi['id'], 'soft', '70', '3', $pi['htmlcontent']) . '<br /><br />' . TEXT_PRODUCTS_IMAGE_CAPTION . '<br />';
+			for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
+			  echo tep_image(tep_catalog_href_link(DIR_WS_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], '', 'SSL'), $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('image_caption_' .  $pi['id'] . '[' . $languages[$i]['id'] . ']', (array_key_exists($languages[$i]['id'],$pi['captions']) ? $pi['captions'][$languages[$i]['id']] : ''));
+			}
+			echo	'</li>';
+// Caption Edit End
     }
 ?>
               </ul>
@@ -627,7 +696,12 @@ var piSize = <?php echo $pi_counter; ?>;
 function addNewPiForm() {
   piSize++;
 
-  $('#piList').append('<li id="piId' + piSize + '" class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="float: right;"></span><a href="#" onclick="showPiDelConfirm(' + piSize + ');return false;" class="ui-icon ui-icon-trash" style="float: right;"></a><strong><?php echo TEXT_PRODUCTS_LARGE_IMAGE; ?></strong><br /><input type="file" name="products_image_large_new_' + piSize + '" /><br /><br /><?php echo TEXT_PRODUCTS_LARGE_IMAGE_HTML_CONTENT; ?><br /><textarea name="products_image_htmlcontent_new_' + piSize + '" wrap="soft" cols="70" rows="3"></textarea></li>');
+// PI-GALLERY-CAPTION-ADM-CAT-EDIT-8
+  $('#piList').append('<li id="piId' + piSize + '" class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="float: right;"></span><a href="#" onclick="showPiDelConfirm(' + piSize + ');return false;" class="ui-icon ui-icon-trash" style="float: right;"></a><strong><?php echo TEXT_PRODUCTS_LARGE_IMAGE; ?></strong><br /><input type="file" name="products_image_large_new_' + piSize + '" /><br /><br /><?php echo TEXT_PRODUCTS_LARGE_IMAGE_HTML_CONTENT; ?><br /><textarea name="products_image_htmlcontent_new_' + piSize + '" wrap="soft" cols="70" rows="3"></textarea><br /><br /><?php echo TEXT_PRODUCTS_IMAGE_CAPTION; ?><br /><?php
+	 for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
+			  echo tep_image(tep_catalog_href_link(DIR_WS_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], '', 'SSL'), $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('image_caption_\' + piSize + \'[' . $languages[$i]['id'] . ']');
+			} ?></li>');
+// Caption Edit End
 }
 
 var piDelConfirmId = 0;
