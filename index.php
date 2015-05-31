@@ -19,22 +19,21 @@
     $categories_products = tep_db_fetch_array($categories_products_query);
     if ($categories_products['total'] > 0) {
       $category_depth = 'products'; // display products
-    } else {
-      $category_parent_query = tep_db_query("select count(*) as total from " . TABLE_CATEGORIES . " where parent_id = '" . (int)$current_category_id . "'");
-      $category_parent = tep_db_fetch_array($category_parent_query);
-      if ($category_parent['total'] > 0) {
-        $category_depth = 'nested'; // navigate through the categories
-      } else {
-        $category_depth = 'products'; // category has no products, but display the 'no products' message
-      }
     }
+		$category_parent_query = tep_db_query("select count(*) as total from " . TABLE_CATEGORIES . " where parent_id = '" . (int)$current_category_id . "'");
+		$category_parent = tep_db_fetch_array($category_parent_query);
+		if ($category_parent['total'] > 0) {
+			$category_depth = ($category_depth == 'top' ? 'nested' : 'mixed'); // navigate through the categories
+		} else {
+			$category_depth = 'products'; // category has no products, but display the 'no products' message
+		}
   }
 
   require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_DEFAULT);
 
   require(DIR_WS_INCLUDES . 'template_top.php');
 
-  if ($category_depth == 'nested') {
+  if ($category_depth == 'nested' || $category_depth == 'mixed') {
     $category_query = tep_db_query("select cd.categories_name, c.categories_image from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.categories_id = '" . (int)$current_category_id . "' and cd.categories_id = '" . (int)$current_category_id . "' and cd.language_id = '" . (int)$languages_id . "'");
     $category = tep_db_fetch_array($category_query);
 ?>
@@ -82,20 +81,25 @@
       echo '</div>';
     }
 
-// needed for the new products module shown below
-    $new_products_category_id = $current_category_id;
 ?>
       </div>
 
     <br />
 
-<?php include(DIR_WS_MODULES . FILENAME_NEW_PRODUCTS); ?>
+<?php
+  if ($category_depth == 'nested') {
+// needed for the new products module shown below
+    $new_products_category_id = $current_category_id;
+    include(DIR_WS_MODULES . FILENAME_NEW_PRODUCTS); 
+	} ?>
 
   </div>
 </div>
 
 <?php
-  } elseif ($category_depth == 'products' || (isset($HTTP_GET_VARS['manufacturers_id']) && !empty($HTTP_GET_VARS['manufacturers_id']))) {
+  } 
+	
+	if ($category_depth == 'products' || $category_depth == 'mixed' || (isset($HTTP_GET_VARS['manufacturers_id']) && !empty($HTTP_GET_VARS['manufacturers_id']))) {
 // create column list
     $define_list = array('PRODUCT_LIST_MODEL' => PRODUCT_LIST_MODEL,
                          'PRODUCT_LIST_NAME' => PRODUCT_LIST_NAME,
@@ -206,15 +210,18 @@
       $image = tep_db_fetch_array($image);
       $catname = $image['catname'];
     }
+		
+if ($category_depth <> 'mixed') {
 ?>
 
 <div class="page-header">
   <h1><?php echo $catname; ?></h1>
 </div>
-
+<?php } ?>
 <div class="contentContainer">
 
 <?php
+
 // optional Product List Filter
     if (PRODUCT_LIST_FILTER > 0) {
       if (isset($HTTP_GET_VARS['manufacturers_id']) && !empty($HTTP_GET_VARS['manufacturers_id'])) {
@@ -247,7 +254,7 @@
 </div>
 
 <?php
-  } else { // default page
+  } elseif ($category_depth == 'top') { // default page
 ?>
 
 <div class="page-header">
