@@ -46,7 +46,7 @@ if (tep_not_null($action)) {
 		                        'languages_id' =>  tep_db_prepare_input($val['language']),
 		                        'category_id' =>  tep_db_prepare_input($val['category']),
 		                        'google_only' =>  tep_db_prepare_input($val['google']),
-	                            'searchable' =>  tep_db_prepare_input ($_POST['field']['searchable']),
+	                            'searchable' =>  tep_db_prepare_input ($val['searchable']),
 			   					'products_extra_fields_order' => tep_db_prepare_input($val['order']));
 			  tep_db_perform(TABLE_PRODUCTS_EXTRA_FIELDS, $sql_data_array, 'update', 'products_extra_fields_id=' . $key);
       }
