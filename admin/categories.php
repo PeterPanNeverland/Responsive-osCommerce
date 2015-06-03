@@ -91,6 +91,75 @@
 
         tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $categories_id));
         break;
+// COPY-CAT-EDIT-1
+      case 'copy_category_confirm':
+        if (isset($_POST['categories_id']) && ($_POST['categories_id'] != $_POST['copy_to_category_id'])) {
+          $categories_id = tep_db_prepare_input($_POST['categories_id']);
+          $new_parent_id = tep_db_prepare_input($_POST['copy_to_category_id']);
+
+          $category_query = tep_db_query("SELECT * FROM categories WHERE categories_id = '" . (int)$categories_id . "'");
+          while ($category_result = tep_db_fetch_array($category_query)) {
+						$sql_data_array = array();
+						foreach ($category_result as $key => $value) {
+							switch ($key) {
+								case 'categories_id' :
+									break;
+								case 'parent_id' :
+									$sql_data_array[$key] = $new_parent_id;
+									break;
+								case 'date_added' :
+									$sql_data_array[$key] = 'now()';
+									break;
+								default :								
+									$sql_data_array[$key] = $value;
+							}
+						}
+						tep_db_perform('categories', $sql_data_array);
+						$new_categories_id = tep_db_insert_id();
+
+						$desc_query = tep_db_query("SELECT * FROM categories_description WHERE categories_id = '" . (int)$categories_id . "'");
+						while ($desc_result = tep_db_fetch_array($desc_query)) {
+							$sql_data_array = array();
+							foreach ($desc_result as $key => $value) {
+								switch ($key) {
+									case 'categories_id' :
+										$sql_data_array[$key] = $new_categories_id;
+										break;
+									case 'date_added' :
+										$sql_data_array[$key] = 'now()';
+										break;
+									default :								
+										$sql_data_array[$key] = $value;
+								}
+							}
+	            tep_db_perform('categories_description', $sql_data_array);
+	          }
+						
+						$prod_query = tep_db_query("SELECT * FROM products_to_categories WHERE categories_id = '" . (int)$categories_id . "'");
+						while ($prod_result = tep_db_fetch_array($prod_query)) {
+							$sql_data_array = array();
+							foreach ($prod_result as $key => $value) {
+								switch ($key) {
+									case 'categories_id' :
+										$sql_data_array[$key] = $new_categories_id;
+										break;
+									default :								
+										$sql_data_array[$key] = $value;
+								}
+							}
+	            tep_db_perform('products_to_categories', $sql_data_array);
+	          }
+						
+            if (USE_CACHE == 'true') {
+              tep_reset_cache_block('categories');
+            }
+					}
+
+					tep_redirect(tep_href_link('categories.php', 'cPath=' . $new_parent_id . '&cID=' . $categories_id . $search_report_url));
+        }
+
+        break;
+// End copy category
       case 'delete_category_confirm':
         if (isset($HTTP_POST_VARS['categories_id'])) {
           $categories_id = tep_db_prepare_input($HTTP_POST_VARS['categories_id']);
@@ -976,6 +1045,16 @@ $('#products_date_available').datepicker({
         $contents[] = array('text' => '<br />' . sprintf(TEXT_MOVE, $cInfo->categories_name) . '<br />' . tep_draw_pull_down_menu('move_to_category_id', tep_get_category_tree(), $current_category_id));
         $contents[] = array('align' => 'center', 'text' => '<br />' . tep_draw_button(IMAGE_MOVE, 'arrow-4', null, 'primary') . tep_draw_button(IMAGE_CANCEL, 'close', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $cInfo->categories_id)));
         break;
+// COPY-CAT-EDIT-2
+      case 'copy_category':
+        $heading[] = array('text' => '<strong>' . TEXT_INFO_HEADING_MOVE_CATEGORY . '</strong>');
+
+        $contents = array('form' => tep_draw_form('categories', FILENAME_CATEGORIES, 'action=copy_category_confirm&cPath=' . $cPath) . tep_draw_hidden_field('categories_id', $cInfo->categories_id));
+        $contents[] = array('text' => sprintf(TEXT_COPY_CATEGORIES_INTRO, $cInfo->categories_name));
+        $contents[] = array('text' => '<br />' . sprintf(TEXT_COPY, $cInfo->categories_name) . '<br />' . tep_draw_pull_down_menu('copy_to_category_id', tep_get_category_tree(), $current_category_id));
+        $contents[] = array('align' => 'center', 'text' => '<br />' . tep_draw_button(IMAGE_COPY, 'arrow-4', null, 'primary') . tep_draw_button(IMAGE_CANCEL, 'close', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $cInfo->categories_id)));
+        break;
+// End of copy category
       case 'delete_product':
         $heading[] = array('text' => '<strong>' . TEXT_INFO_HEADING_DELETE_PRODUCT . '</strong>');
 
@@ -1029,7 +1108,9 @@ $('#products_date_available').datepicker({
 
             $heading[] = array('text' => '<strong>' . $cInfo->categories_name . '</strong>');
 
-            $contents[] = array('align' => 'center', 'text' => tep_draw_button(IMAGE_EDIT, 'document', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $category_path_string . '&cID=' . $cInfo->categories_id . '&action=edit_category')) . tep_draw_button(IMAGE_DELETE, 'trash', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $category_path_string . '&cID=' . $cInfo->categories_id . '&action=delete_category')) . tep_draw_button(IMAGE_MOVE, 'arrow-4', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $category_path_string . '&cID=' . $cInfo->categories_id . '&action=move_category')));
+// COPY-CAT-EDIT-3
+            $contents[] = array('align' => 'center', 'text' => tep_draw_button(IMAGE_EDIT, 'document', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $category_path_string . '&cID=' . $cInfo->categories_id . '&action=edit_category')) . tep_draw_button(IMAGE_DELETE, 'trash', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $category_path_string . '&cID=' . $cInfo->categories_id . '&action=delete_category')) . tep_draw_button(IMAGE_MOVE, 'arrow-4', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $category_path_string . '&cID=' . $cInfo->categories_id . '&action=move_category')) . tep_draw_button(IMAGE_COPY_TO, 'copy', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $category_path_string . '&cID=' . $cInfo->categories_id . '&action=copy_category')));
+// End of copy category
             $contents[] = array('text' => '<br />' . TEXT_DATE_ADDED . ' ' . tep_date_short($cInfo->date_added));
             if (tep_not_null($cInfo->last_modified)) $contents[] = array('text' => TEXT_LAST_MODIFIED . ' ' . tep_date_short($cInfo->last_modified));
             $contents[] = array('text' => '<br />' . tep_info_image($cInfo->categories_image, $cInfo->categories_name, HEADING_IMAGE_WIDTH, HEADING_IMAGE_HEIGHT) . '<br />' . $cInfo->categories_image);

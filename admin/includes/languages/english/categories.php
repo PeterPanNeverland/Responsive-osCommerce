@@ -62,6 +62,10 @@ define('TEXT_DELETE_WARNING_PRODUCTS', '<strong>WARNING:</strong> There are %s p
 define('TEXT_MOVE_PRODUCTS_INTRO', 'Please select which category you wish <strong>%s</strong> to reside in');
 define('TEXT_MOVE_CATEGORIES_INTRO', 'Please select which category you wish <strong>%s</strong> to reside in');
 define('TEXT_MOVE', 'Move <strong>%s</strong> to:');
+// COPY-CAT-EDIT
+define('TEXT_COPY_CATEGORIES_INTRO', 'Please select the category to which you wish to copy <strong>%s</strong>');
+define('TEXT_COPY', 'Copy <strong>%s</strong> to:');
+// End of copy category
 
 define('TEXT_NEW_CATEGORY_INTRO', 'Please fill out the following information for the new category');
 define('TEXT_CATEGORIES_NAME', 'Category Name:');
