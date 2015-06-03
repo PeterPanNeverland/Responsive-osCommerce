@@ -149,10 +149,15 @@
 				$newfiles = array( 
 					DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/reset_version.php', // just check current language for admin
 					DIR_FS_ADMIN . 'reset_version.php',
+					DIR_FS_ADMIN . DIR_WS_ICONS . 'current_family.gif',
+					DIR_FS_ADMIN . DIR_WS_ICONS . 'family.gif',
+					DIR_FS_ADMIN . DIR_WS_INCLUDES . 'javascript/family_categories.js',
+					DIR_FS_CATALOG . 'ext/bootstrap-toolkit/bootstrap-toolkit.min.js',
 					DIR_FS_CATALOG . DIR_WS_CLASSES . 'split_union_results.php',
+					DIR_FS_CATALOG_MODULES . 'content/product_info/templates/family_products.php',
 					DIR_FS_CATALOG_MODULES . 'family_listing.php',
 					DIR_FS_CATALOG_MODULES . 'family_products.php',
-					DIR_FS_CATALOG_MODULES . 'content/product_info/templates/family_products.php'
+					DIR_FS_CATALOG_MODULES . 'header_tags/ht_grid_list_view_config_bs.php'
 				);
 				// check there's a module language file for every installed catalog language
         $languages = tep_get_languages();
@@ -170,11 +175,11 @@
 				$msg .= '<br>';
 
 				$editfiles = array(
-					DIR_FS_CATALOG . 'index.php' => array('FAM-CAT-INDEX-EDIT',2),
+					DIR_FS_ADMIN . 'categories.php' => array('FAM-CAT-ADM-CAT-EDIT',13),
+					DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/categories.php' => array('FAM-CAT-ADM-CAT-LNG-EDIT',1),
 					DIR_FS_CATALOG . DIR_WS_CLASSES . 'category_tree.php' => array('FAM-CAT-TREE-EDIT',1),
-					DIR_FS_ADMIN . 'categories.php' => array('PI-GALLERY-CAPTION-ADM-CAT-EDIT',8),
-					DIR_FS_ADMIN . DIR_WS_FUNCTIONS . 'general.php' => array('PI-GALLERY-CAPTION-EDIT',1),
-					DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/categories.php' => array('PI-GALLERY-CAPTION-EDIT',1),
+					DIR_FS_CATALOG . 'index.php' => array('FAM-CAT-INDEX-EDIT',2),
+					DIR_FS_CATALOG . 'user.css' => array('FAM-CAT-CSS-EDIT',1),
 				);
 				$log2 = tep_addon_edit_error($editfiles); //check if addon edits to core files are present
 				if ($log2 !== false) {
