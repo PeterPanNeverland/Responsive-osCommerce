@@ -1,2 +1,22 @@
 /* user.css ----------------------------------------------------------------- */
-
+/* family categories */
+ .imageHolder { 
+  height: 100%; 
+ } 
+ .familyProductHolder { min-height:2em; }
+.familyProductHolder h2 { font-size: 1.3em; }
+.familyProductHolder .btn-group,.family-btn { float:right; }
+.familyHolder .caption, .familyHolder {
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 4px;
+  -webkit-transition: border .5s ease-in-out;
+       -o-transition: border .5s ease-in-out;
+          transition: border .5s ease-in-out;
+}
+.familyHolder .caption:hover {
+  border: 1px solid #428bca;
+}
+.familyHolder { 
+  overflow:auto; 
+}

@@ -15,6 +15,18 @@
   require(DIR_WS_CLASSES . 'currencies.php');
   $currencies = new currencies();
 
+// FAM-CAT-ADM-CAT-EDIT-1
+	if (!tep_db_num_rows(tep_db_query("SHOW COLUMNS FROM categories LIKE 'family_category'"))) {
+		tep_db_query('ALTER TABLE categories ADD family_category TINYINT( 1 ) NOT NULL default 0');
+	}
+	if (!tep_db_num_rows(tep_db_query("SHOW COLUMNS FROM products LIKE 'products_family'"))) {
+		tep_db_query('ALTER TABLE products ADD products_family VARCHAR( 24 )');
+	}
+	if (!tep_db_num_rows(tep_db_query("SHOW INDEX FROM products WHERE column_name = 'products_family'"))) {
+		tep_db_query('CREATE INDEX products_family ON products products_family');
+	}
+// End of Family Categories edit
+
   $action = (isset($HTTP_GET_VARS['action']) ? $HTTP_GET_VARS['action'] : '');
 
   if (tep_not_null($action)) {
@@ -38,8 +50,11 @@
         if (isset($HTTP_POST_VARS['categories_id'])) $categories_id = tep_db_prepare_input($HTTP_POST_VARS['categories_id']);
         $sort_order = tep_db_prepare_input($HTTP_POST_VARS['sort_order']);
 
-        $sql_data_array = array('sort_order' => (int)$sort_order);
-
+// FAM-CAT-ADM-CAT-EDIT-2
+        $family_category = (isset($_POST['family_category']) && $_POST['family_category'] == '1');
+        $sql_data_array = array('sort_order' => (int)$sort_order,
+				                        'family_category' => $family_category);
+// End of Family Categories edit
         if ($action == 'insert_category') {
           $insert_sql_data = array('parent_id' => $current_category_id,
                                    'date_added' => 'now()');
@@ -220,6 +235,9 @@
                                 'products_status' => tep_db_prepare_input($HTTP_POST_VARS['products_status']),
                                 'products_tax_class_id' => tep_db_prepare_input($HTTP_POST_VARS['products_tax_class_id']),
                                 'manufacturers_id' => (int)tep_db_prepare_input($HTTP_POST_VARS['manufacturers_id']));
+// FAM-CAT-ADM-CAT-EDIT-3
+        $sql_data_array['products_family'] = tep_db_prepare_input($_POST['products_family']);
+// End of Family Categories edit
 
         $products_image = new upload('products_image');
         $products_image->set_destination(DIR_FS_CATALOG_IMAGES);
@@ -343,10 +361,12 @@
               $messageStack->add_session(ERROR_CANNOT_LINK_TO_SAME_CATEGORY, 'error');
             }
           } elseif ($HTTP_POST_VARS['copy_as'] == 'duplicate') {
-            $product_query = tep_db_query("select products_quantity, products_model, products_image, products_price, products_date_available, products_weight, products_tax_class_id, manufacturers_id from " . TABLE_PRODUCTS . " where products_id = '" . (int)$products_id . "'");
+// FAM-CAT-ADM-CAT-EDIT-4
+            $product_query = tep_db_query("select products_quantity, products_model, products_image, products_price, products_date_available, products_weight, products_family, products_tax_class_id, manufacturers_id from " . TABLE_PRODUCTS . " where products_id = '" . (int)$products_id . "'");
+// End of Family Categories edit
             $product = tep_db_fetch_array($product_query);
 
-            tep_db_query("insert into " . TABLE_PRODUCTS . " (products_quantity, products_model,products_image, products_price, products_date_added, products_date_available, products_weight, products_status, products_tax_class_id, manufacturers_id) values ('" . tep_db_input($product['products_quantity']) . "', '" . tep_db_input($product['products_model']) . "', '" . tep_db_input($product['products_image']) . "', '" . tep_db_input($product['products_price']) . "',  now(), " . (empty($product['products_date_available']) ? "null" : "'" . tep_db_input($product['products_date_available']) . "'") . ", '" . tep_db_input($product['products_weight']) . "', '0', '" . (int)$product['products_tax_class_id'] . "', '" . (int)$product['manufacturers_id'] . "')");
+            tep_db_query("insert into " . TABLE_PRODUCTS . " (products_quantity, products_model,products_image, products_price, products_date_added, products_date_available, products_weight, products_status, products_family, products_tax_class_id, manufacturers_id) values ('" . tep_db_input($product['products_quantity']) . "', '" . tep_db_input($product['products_model']) . "', '" . tep_db_input($product['products_image']) . "', '" . tep_db_input($product['products_price']) . "',  now(), " . (empty($product['products_date_available']) ? "null" : "'" . tep_db_input($product['products_date_available']) . "'") . ", '" . tep_db_input($product['products_weight']) . "', '0', '" . tep_db_input($product['products_family']) . "', '" . (int)$product['products_tax_class_id'] . "', '" . (int)$product['manufacturers_id'] . "')");
             $dup_products_id = tep_db_insert_id();
 
             $description_query = tep_db_query("select language_id, products_name, products_description, products_url from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id = '" . (int)$products_id . "'");
@@ -404,7 +424,9 @@
     $pInfo = new objectInfo($parameters);
 
     if (isset($HTTP_GET_VARS['pID']) && empty($HTTP_POST_VARS)) {
-      $product_query = tep_db_query("select pd.products_name, pd.products_description, pd.products_url, p.products_id, p.products_quantity, p.products_model, p.products_image, p.products_price, p.products_weight, p.products_date_added, p.products_last_modified, date_format(p.products_date_available, '%Y-%m-%d') as products_date_available, p.products_status, p.products_tax_class_id, p.manufacturers_id from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_id = '" . (int)$HTTP_GET_VARS['pID'] . "' and p.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "'");
+// FAM-CAT-ADM-CAT-EDIT-5
+      $product_query = tep_db_query("select pd.products_name, pd.products_description, pd.products_url, p.products_id, p.products_quantity, p.products_model, p.products_image, p.products_price, p.products_weight, p.products_date_added, p.products_last_modified, date_format(p.products_date_available, '%Y-%m-%d') as products_date_available, p.products_status, p.products_family, p.products_tax_class_id, p.manufacturers_id from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_id = '" . (int)$HTTP_GET_VARS['pID'] . "' and p.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "'");
+// End of Family Categories edit
       $product = tep_db_fetch_array($product_query);
 
       $pInfo->objectInfo($product);
@@ -432,6 +454,18 @@
                                  'text' => $tax_class['tax_class_title']);
     }
 
+// FAM-CAT-ADM-CAT-EDIT-6
+    $products_family_array = array(array('id' => ' ', 'text' => TEXT_PRODUCTS_FAMILY_EXIST));
+    $products_family_array[] = array('id' => '', 'text' => TEXT_NONE);
+    $products_family_query = tep_db_query("select distinct products_family from " . TABLE_PRODUCTS . " order by products_family");
+	 
+    while ($products_family = tep_db_fetch_array($products_family_query)) {
+       if ($products_family['products_family'] == '') continue;
+       $products_family_array[] = array('id' => $products_family['products_family'],
+                                'text' => $products_family['products_family']);
+    }
+// End of Family Categories edit
+
     $languages = tep_get_languages();
 
     if (!isset($pInfo->products_status)) $pInfo->products_status = '1';
@@ -443,6 +477,7 @@
 
     $form_action = (isset($HTTP_GET_VARS['pID'])) ? 'update_product' : 'insert_product';
 ?>
+<?php // FAM-CAT-ADM-CAT-EDIT-7 ?><script language="javascript" src="<?php echo DIR_WS_INCLUDES; ?>javascript/family_categories.js"></script><?php // End ?>
 <script type="text/javascript"><!--
 var tax_rates = new Array();
 <?php
@@ -677,6 +712,14 @@ function showPiDelConfirm(piId) {
             <td class="main"><?php echo TEXT_PRODUCTS_WEIGHT; ?></td>
             <td class="main"><?php echo tep_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . tep_draw_input_field('products_weight', $pInfo->products_weight); ?></td>
           </tr>
+<?php // FAM-CAT-ADM-CAT-EDIT-8 ?>
+          <tr>
+            <td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+          </tr>
+          <tr>
+            <td class="main"><?php echo TEXT_PRODUCTS_FAMILY; ?></td>
+	          <td class="main"><?php  echo tep_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . tep_draw_input_field('products_family', $pInfo->products_family) . '&nbsp;' . tep_draw_pull_down_menu('products_family_select', $products_family_array, ' ', 'onchange="updateProductsFamily()"'); ?></td>
+	        </tr><?php // End of Family Categories edit ?>
         </table></td>
       </tr>
       <tr>
@@ -696,7 +739,9 @@ $('#products_date_available').datepicker({
     </form>
 <?php
   } elseif ($action == 'new_product_preview') {
-    $product_query = tep_db_query("select p.products_id, pd.language_id, pd.products_name, pd.products_description, pd.products_url, p.products_quantity, p.products_model, p.products_image, p.products_price, p.products_weight, p.products_date_added, p.products_last_modified, p.products_date_available, p.products_status, p.manufacturers_id  from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_id = pd.products_id and p.products_id = '" . (int)$HTTP_GET_VARS['pID'] . "'");
+// FAM-CAT-ADM-CAT-EDIT-9
+    $product_query = tep_db_query("select p.products_id, pd.language_id, pd.products_name, pd.products_description, pd.products_url, p.products_quantity, p.products_model, p.products_image, p.products_price, p.products_weight, p.products_date_added, p.products_last_modified, p.products_date_available, p.products_status, p.products_family, p.manufacturers_id  from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_id = pd.products_id and p.products_id = '" . (int)$HTTP_GET_VARS['pID'] . "'");
+// End of Family Categories edit
     $product = tep_db_fetch_array($product_query);
 
     $pInfo = new objectInfo($product);
@@ -824,9 +869,11 @@ $('#products_date_available').datepicker({
     if (isset($HTTP_GET_VARS['search'])) {
       $search = tep_db_prepare_input($HTTP_GET_VARS['search']);
 
-      $categories_query = tep_db_query("select c.categories_id, cd.categories_name, c.categories_image, c.parent_id, c.sort_order, c.date_added, c.last_modified from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.categories_id = cd.categories_id and cd.language_id = '" . (int)$languages_id . "' and cd.categories_name like '%" . tep_db_input($search) . "%' order by c.sort_order, cd.categories_name");
+// FAM-CAT-ADM-CAT-EDIT-10
+      $categories_query = tep_db_query("select c.categories_id, cd.categories_name, c.family_category, c.categories_image, c.parent_id, c.sort_order, c.date_added, c.last_modified from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.categories_id = cd.categories_id and cd.language_id = '" . (int)$languages_id . "' and cd.categories_name like '%" . tep_db_input($search) . "%' order by c.sort_order, cd.categories_name");
     } else {
-      $categories_query = tep_db_query("select c.categories_id, cd.categories_name, c.categories_image, c.parent_id, c.sort_order, c.date_added, c.last_modified from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.parent_id = '" . (int)$current_category_id . "' and c.categories_id = cd.categories_id and cd.language_id = '" . (int)$languages_id . "' order by c.sort_order, cd.categories_name");
+      $categories_query = tep_db_query("select c.categories_id, cd.categories_name, c.family_category, c.categories_image, c.parent_id, c.sort_order, c.date_added, c.last_modified from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.parent_id = '" . (int)$current_category_id . "' and c.categories_id = cd.categories_id and cd.language_id = '" . (int)$languages_id . "' order by c.sort_order, cd.categories_name");
+// End of Family Categories edit
     }
     while ($categories = tep_db_fetch_array($categories_query)) {
       $categories_count++;
@@ -848,8 +895,9 @@ $('#products_date_available').datepicker({
       } else {
         echo '              <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href=\'' . tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $categories['categories_id']) . '\'">' . "\n";
       }
+// FAM-CAT-ADM-CAT-EDIT-11
 ?>
-                <td class="dataTableContent"><?php echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, tep_get_path($categories['categories_id'])) . '">' . tep_image(DIR_WS_ICONS . 'folder.gif', ICON_FOLDER) . '</a>&nbsp;<strong>' . $categories['categories_name'] . '</strong>'; ?></td>
+                <td class="dataTableContent"><?php echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, tep_get_path($categories['categories_id'])) . '">' . tep_image(DIR_WS_ICONS . ($categories['family_category'] ? 'family.gif' : 'folder.gif'), ICON_FOLDER) . '</a>&nbsp;<strong>' . $categories['categories_name'] . '</strong>'; ?></td><?php // End of Family Categories edit ?>
                 <td class="dataTableContent" align="center">&nbsp;</td>
                 <td class="dataTableContent" align="right"><?php if (isset($cInfo) && is_object($cInfo) && ($categories['categories_id'] == $cInfo->categories_id) ) { echo tep_image(DIR_WS_IMAGES . 'icon_arrow_right.gif', ''); } else { echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $categories['categories_id']) . '">' . tep_image(DIR_WS_IMAGES . 'icon_info.gif', IMAGE_ICON_INFO) . '</a>'; } ?>&nbsp;</td>
               </tr>
@@ -936,6 +984,9 @@ $('#products_date_available').datepicker({
         }
 
         $contents[] = array('text' => '<br />' . TEXT_CATEGORIES_NAME . $category_inputs_string);
+// FAM-CAT-ADM-CAT-EDIT-12
+        $contents[] = array('text' => '<br />' . tep_draw_radio_field('family_category', '1', false) . '&nbsp;' . TEXT_FAMILY_CATEGORY . '&nbsp;' . tep_draw_radio_field('family_category', '0', true) . '&nbsp;' . TEXT_NORMAL_CATEGORY);
+// End of Family Categories edit
         $contents[] = array('text' => '<br />' . TEXT_CATEGORIES_IMAGE . '<br />' . tep_draw_file_field('categories_image'));
         $contents[] = array('text' => '<br />' . TEXT_SORT_ORDER . '<br />' . tep_draw_input_field('sort_order', '', 'size="2"'));
         $contents[] = array('align' => 'center', 'text' => '<br />' . tep_draw_button(IMAGE_SAVE, 'disk', null, 'primary') . tep_draw_button(IMAGE_CANCEL, 'close', tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath)));
@@ -953,6 +1004,15 @@ $('#products_date_available').datepicker({
         }
 
         $contents[] = array('text' => '<br />' . TEXT_EDIT_CATEGORIES_NAME . $category_inputs_string);
+// FAM-CAT-ADM-CAT-EDIT-13
+				if (!isset($cInfo->family_category)) $cInfo->family_category = '0';
+				switch ($cInfo->family_category) {
+					case '1': $family_status = true; $normal_status = false; break;
+					case '0':
+					default: $family_status = false; $normal_status = true;
+				}
+        $contents[] = array('text' => '<br />' . tep_draw_radio_field('family_category', '1', $family_status) . '&nbsp;' . TEXT_FAMILY_CATEGORY . '&nbsp;' . tep_draw_radio_field('family_category', '0', $normal_status) . '&nbsp;' . TEXT_NORMAL_CATEGORY);
+// End of Family Categories edit
         $contents[] = array('text' => '<br />' . tep_image(HTTP_CATALOG_SERVER . DIR_WS_CATALOG_IMAGES . $cInfo->categories_image, $cInfo->categories_name) . '<br />' . DIR_WS_CATALOG_IMAGES . '<br /><strong>' . $cInfo->categories_image . '</strong>');
         $contents[] = array('text' => '<br />' . TEXT_EDIT_CATEGORIES_IMAGE . '<br />' . tep_draw_file_field('categories_image'));
         $contents[] = array('text' => '<br />' . TEXT_EDIT_SORT_ORDER . '<br />' . tep_draw_input_field('sort_order', $cInfo->sort_order, 'size="2"'));

@@ -67,7 +67,12 @@ define('TEXT_NEW_CATEGORY_INTRO', 'Please fill out the following information for
 define('TEXT_CATEGORIES_NAME', 'Category Name:');
 define('TEXT_CATEGORIES_IMAGE', 'Category Image:');
 define('TEXT_SORT_ORDER', 'Sort Order:');
-
+// FAM-CAT-ADM-CAT-LNG-EDIT
+define('TEXT_FAMILY_CATEGORY', 'Family Category');
+define('TEXT_NORMAL_CATEGORY', 'Normal Category');
+define('TEXT_PRODUCTS_FAMILY', 'Products Family:');
+define('TEXT_PRODUCTS_FAMILY_EXIST', 'Product Families exist:');
+// End
 define('TEXT_PRODUCTS_STATUS', 'Products Status:');
 define('TEXT_PRODUCTS_DATE_AVAILABLE', 'Date Available:');
 define('TEXT_PRODUCT_AVAILABLE', 'In Stock');
