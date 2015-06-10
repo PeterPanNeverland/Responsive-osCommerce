@@ -64,7 +64,10 @@ define('TEXT_MOVE_CATEGORIES_INTRO', 'Please select which category you wish <str
 define('TEXT_MOVE', 'Move <strong>%s</strong> to:');
 
 define('TEXT_NEW_CATEGORY_INTRO', 'Please fill out the following information for the new category');
-define('TEXT_CATEGORIES_NAME', 'Category Name:');
+// ADM-CAT-CAT-DESC-EDIT
+define('TEXT_CATEGORIES_NAME', 'Category Name');
+define('TEXT_CATEGORIES_DESC', ' &amp; Description:');
+// End of category descriptions
 define('TEXT_CATEGORIES_IMAGE', 'Category Image:');
 define('TEXT_SORT_ORDER', 'Sort Order:');
 
