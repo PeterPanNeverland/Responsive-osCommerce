@@ -5,13 +5,16 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2003 osCommerce - by mark enriquez, modified for UK delivery area use 
-  Dec 2006 by Martin Hughes-Jones
-  Modified by Luke Higton for TNT 48 Hours delivery
+  Copyright (c) 2015 osCommerce 
 
 -- 
 -- This redesign: BrockleyJohn john@sewebsites.net
 -- Feb 2011
+
+--	previously
+--	by mark enriquez, modified for UK delivery area use 
+--  Dec 2006 by Martin Hughes-Jones
+--  Modified by Luke Higton for TNT 48 Hours delivery
 -- 
 -- UK postcode-based shipping bands
 -- A database table maps postcode outcodes (the first bit) to geographical areas (zones)
