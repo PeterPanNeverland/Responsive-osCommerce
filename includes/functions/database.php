@@ -37,6 +37,9 @@
       error_log('ERROR: [' . $errno . '] ' . $error . "\n", 3, STORE_PAGE_PARSE_TIME_LOG);
     }
 
+		$email_text = "DB error experienced on shop!\n\nPage: ".basename($_SERVER['PHP_SELF'])." url: ".$_SERVER['REQUEST_URI']."\n\nError ".$errno . ' - ' . $error . "\n\nrunning query\n\n".$query;
+		tep_mail('', (defined(STORE_TECH_SUPPORT_EMAIL) ? STORE_TECH_SUPPORT_EMAIL : STORE_OWNER_EMAIL_ADDRESS), STORE_NAME . ' DB error', $email_text, STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS);
+
     die('<font color="#000000"><strong>' . $errno . ' - ' . $error . '<br /><br />' . $query . '<br /><br /><small><font color="#ff0000">[TEP STOP]</font></small><br /><br /></strong></font>');
   }
 
