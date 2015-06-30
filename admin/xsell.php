@@ -98,7 +98,6 @@ and many others since
 
   require(DIR_WS_INCLUDES . 'template_top.php');
 ?>
-
     <table border="0" width="100%" cellspacing="0" cellpadding="2">
       <tr>
         <td width="100%"><table border="0" width="100%" cellspacing="0" cellpadding="0">
@@ -139,7 +138,7 @@ if (isset($_GET['search'])) {
     $products_query = tep_db_query($products_query_raw);
     while ($products = tep_db_fetch_array($products_query)) {
 ?>
-   <tr onMouseOver="cOn(this); this.style.cursor='pointer'; this.style.cursor='hand';" onMouseOut="cOut(this);" bgcolor='#FFFFFF' onClick=document.location.href="<?php echo tep_href_link(FILENAME_XSELL_PRODUCTS, 'add_related_product_ID=' . $products['products_id'], 'NONSSL');?>">
+   <tr class="dataTableRow" onMouseOver="rowOverEffect(this);" onMouseOut="rowOutEffect(this);" onClick=document.location.href="<?php echo tep_href_link(FILENAME_XSELL_PRODUCTS, 'add_related_product_ID=' . $products['products_id'], 'NONSSL');?>">
     <td class="dataTableContent" valign="top">&nbsp;<?php echo $products['products_id'];?>&nbsp;</td>
 	  <?php
 	  if ($products['products_model'] == NULL) {

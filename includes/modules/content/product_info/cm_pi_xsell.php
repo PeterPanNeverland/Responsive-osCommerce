@@ -1,10 +1,13 @@
 <?php
 /*
   $Id$
+	Cross Sell Addon
+	Content module and bootstrap version by @BrockleyJohn john@sewebsites.net
 
 	TO DO:
-	- tidy up install / remove functions... success/fail messaging is wrong
+	- [done] tidy up install / remove functions... success/fail messaging is wrong
 	- [done] add some validation functions for complete install
+	- split caching out separately for simpler install
 	- remove deprecated constants
 
   osCommerce, Open Source E-Commerce Solutions
@@ -14,7 +17,7 @@
 
   Released under the GNU General Public License
 */
-  define('MODULE_CONTENT_PRODUCT_INFO_XSELL_FILE_VER','00.03');
+  define('MODULE_CONTENT_PRODUCT_INFO_XSELL_FILE_VER','00.04');
 
   class cm_pi_xsell {
     var $code;
@@ -68,57 +71,106 @@
       return defined('MODULE_CONTENT_PRODUCT_INFO_XSELL_STATUS');
     }
 
-    function install() {
-	  global $messageStack;
-	  require(DIR_WS_FUNCTIONS . 'xsell.php'); 
-	  //check if need to install database changes
-	  if (xsell_check_db()) {
-				$messageStack->add(MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_EXISTS, 'success');
-		} else {
-			if (xsell_setup_db() === TRUE){
-				$messageStack->add(MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_SUCCESS, 'success');
-			} else {
-				$messageStack->add(MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_FAILURE, 'error');
+    function install($parameter = null) {
+			require(DIR_WS_FUNCTIONS . 'xsell.php'); 
+			//check if need to install database changes
+			if (! xsell_check_db()) {
+				xsell_setup_db();
 			}
-	  }
-	
-      tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Cross Sell Module', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_STATUS', 'True', 'Should the Cross Sell block be shown on the product info page?', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
-      tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Content Width', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_WIDTH', '8', 'What width container should the content be shown in?', '6', '1', 'tep_cfg_select_option(array(\'12\', \'11\', \'10\', \'9\', \'8\', \'7\', \'6\', \'5\', \'4\', \'3\', \'2\', \'1\'), ', now())");
-      tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Align Content', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_ALIGN', 'text-left', 'How should the content be aligned or float?', '6', '1', 'tep_cfg_select_option(array(\'text-left\', \'text-center\', \'text-right\', \'pull-left\', \'pull-right\'), ', now())");
-      tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Number of cross sells', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_LIMIT', '6', 'Maximum number of products to display in the Cross Sell block. NB output may be cached.', '6', '1', now())");
-      tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Min Product Width', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_PRODUCT_MIN_WIDTH', '4', 'Minimum width (in page columns) of product grid listing in Cross Sell Block - used to fill out a single row. NB output may be cached.', '6', '1', 'tep_cfg_select_option(array(\'6\', \'5\', \'4\', \'3\', \'2\'), ', now())");
-      tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_SORT_ORDER', '700', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
-	  //validation stuff
-      tep_db_query( "insert into configuration ( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added ) values ( '', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK',  '',  '', '6', '9', 'tep_xsell_version_check', 'tep_cfg_do_nothing(', now() ) ");
+
+      $params = $this->getParams();
+
+      if (isset($parameter)) {
+        if (isset($params[$parameter])) {
+          $params = array($parameter => $params[$parameter]);
+        } else {
+          $params = array();
+        }
+      }
+
+      foreach ($params as $key => $data) {
+        $sql_data_array = array('configuration_title' => (isset($data['title']) ? $data['title'] : ''),
+                                'configuration_key' => $key,
+                                'configuration_value' => (isset($data['value']) ? $data['value'] : ''),
+                                'configuration_description' => (isset($data['desc']) ? $data['desc'] : ''),
+                                'configuration_group_id' => '6',
+                                'sort_order' => '0',
+                                'date_added' => 'now()');
+
+        if (isset($data['set_func'])) {
+          $sql_data_array['set_function'] = $data['set_func'];
+        }
+
+        if (isset($data['use_func'])) {
+          $sql_data_array['use_function'] = $data['use_func'];
+        }
+
+        tep_db_perform('configuration', $sql_data_array);
+      }
 			tep_register_version_var('MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK');
     }
 
+    function getParams() {
+
+      $params = array('MODULE_CONTENT_PRODUCT_INFO_XSELL_STATUS' => array('title' => 'Enable Cross Sell Module',
+                                                                     'desc' => 'Should the module be shown on the product info page?',
+                                                                     'value' => 'True',
+                                                                     'set_func' => 'tep_cfg_select_option(array(\'True\', \'False\'), '),
+                      'MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_WIDTH' => array('title' => 'Content Width',
+                                                                     'desc' => 'What width container should the content be shown in?',
+                                                                     'value' => '12',
+                                                                     'set_func' => 'tep_cfg_select_option(array(\'12\', \'11\', \'10\', \'9\', \'8\', \'7\', \'6\', \'5\', \'4\', \'3\', \'2\', \'1\'), '),
+                      'MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_ALIGN' => array('title' => 'Content Align-Float',
+                                                                     'desc' => 'How should the content be aligned or float?',
+                                                                     'value' => 'text-left',
+                                                                     'set_func' => 'tep_cfg_select_option(array(\'text-left\', \'text-center\', \'text-right\', \'pull-left\', \'pull-right\'), '),
+                      'MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_LIMIT' => array('title' => 'Number of cross sells',
+                                                                     'desc' => 'Maximum number of products to display in the Cross Sell block. NB output may be cached.',
+                                                                     'value' => '6'),
+                      'MODULE_CONTENT_PRODUCT_INFO_XSELL_PRODUCT_MIN_WIDTH' => array('title' => 'Min Product Width',
+                                                                     'desc' => 'Minimum width (in page columns) of product grid listing in Cross Sell Block - used to fill out a single row. NB output may be cached.',
+                                                                     'value' => '4',
+                                                                     'set_func' => 'tep_cfg_select_option(array(\'6\', \'5\', \'4\', \'3\', \'2\'), '),
+                      'MODULE_CONTENT_PRODUCT_INFO_XSELL_SORT_ORDER' => array('title' => 'Sort Order.',
+                                                                         'desc' => 'Sort order of display. Lowest is displayed first.',
+                                                                         'value' => '700'),
+	  //validation stuff
+                      'MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK' => array('use_func' => 'tep_xsell_version_check',
+                                                                                     'set_func' => 'tep_cfg_do_nothing(')
+																																				 );
+
+      return $params;
+    }
+
     function remove() {
-			global $messageStack;
 			require(DIR_WS_FUNCTIONS . 'xsell.php'); 
 			//check if any data before reverting database changes
 			if (!xsell_check_data()) {
-				if (xsell_clean_db() === TRUE){
-					$messageStack->add(MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_DROP_SUCCESS, 'success');
-				} else {
-					$messageStack->add(MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_DROP_FAILURE, 'error');
-				}
-			} else {
-				$messageStack->add(MODULE_CONTENT_PRODUCT_INFO_XSELL_DB_DROP_DATA, 'warning');
+				xsell_clean_db();
 			}
       tep_db_query("delete from configuration where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
     function keys() {
-      return array('MODULE_CONTENT_PRODUCT_INFO_XSELL_STATUS', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_WIDTH', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_ALIGN', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_LIMIT', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_PRODUCT_MIN_WIDTH',  'MODULE_CONTENT_PRODUCT_INFO_XSELL_SORT_ORDER', 'MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK');
+      $keys = array_keys($this->getParams());
+
+      if ($this->check()) {
+        foreach ($keys as $key) {
+          if (!defined($key)) {
+            $this->install($key);
+          }
+        }
+      }
+
+      return $keys;
     }
   }
   // class def ends here, what follows are definitions of functions used above
 
-define('MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST','This test doesn\'t check anything yet so don\'t read too much into it!');
 	// Check whether there's any updating to do (?and maybe if it's the latest version)
 	if( !function_exists( 'tep_xsell_version_check' ) ) {
 		function tep_xsell_version_check() {
+			global $language;
 			$file_version = MODULE_CONTENT_PRODUCT_INFO_XSELL_FILE_VER;
 			if (defined('MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK') && MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK <>'') {
 				$db_version = MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK;
@@ -127,27 +179,48 @@ define('MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST','This test doesn\'t check any
 			}
 			$fail = false; $reset = true; $detail = '';
 			if ($db_version == $file_version) {
-				$msg = sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_SAME,$file_version);
+				$msg = sprintf(MODULE_ADDON_VERSION_SAME,$file_version);
 			} elseif ($db_version > $file_version) {
-				$msg = MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_NOK;
+				$msg = MODULE_ADDON_VERSION_NOK;
 				$fail = true;
 			} else { // ($db_version < $file_version) { //file version is higher - upgrade or newly installed
 				//put any update processing here ... remember to cater for skipped versions
 
-				$log = tep_xsell_upload_error(); //check if addons additional files are present
+				$newfiles = array(
+					DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/reset_version.php',
+					DIR_FS_ADMIN . 'reset_version.php',
+					DIR_FS_ADMIN . DIR_WS_BOXES . 'xsell.php',
+					DIR_FS_ADMIN . DIR_WS_FUNCTIONS . 'xsell.php',
+					DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/modules/boxes/xsell.php',
+					DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/xsell.php',
+					DIR_FS_ADMIN . 'xsell.php',
+					DIR_FS_CATALOG_LANGUAGES . $language . '/modules/content/product_info/cm_pi_xsell.php',
+					DIR_FS_CATALOG_MODULES . 'content/product_info/templates/xsell.php',
+					DIR_FS_CATALOG_MODULES . 'xsell_products.php'
+				);
+				$log = tep_addon_upload_error($newfiles); //check if addons additional files are present
 				if ($log !== false) {
 					$fail = true;
-				  $msg = MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_FAIL;
+				  $msg = MODULE_ADDON_UPLOAD_FAIL;
 				} else {
-				  $msg = MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_OK;
+				  $msg = MODULE_ADDON_UPLOAD_OK;
 				}
 				$msg .= '<br>';
-				$log2 = tep_xsell_edit_error(); //check if addon edits to core files are present
+
+				$editfiles = array(
+					DIR_FS_ADMIN . 'categories.php' => array('XSELL-ADM-CAT',8),
+					DIR_FS_ADMIN . DIR_WS_INCLUDES . 'application_top.php' => array('XSELL-ADM-APP-TOP',1),
+					DIR_FS_ADMIN . DIR_WS_FUNCTIONS . 'general.php' => array('XSELL-ADM-GENERAL-FUNCTIONS',3),
+					DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '.php' => array('XSELL-ADM-LANGUAGE',1),
+					DIR_FS_CATALOG . DIR_WS_INCLUDES . 'application_top.php' => array('XSELL-CAT-APP-TOP',2),
+					DIR_FS_CATALOG . DIR_WS_FUNCTIONS . 'cache.php' => array('XSELL-CAT-CACHE-FUNCTION',1)
+				);
+				$log2 = tep_addon_edit_error($editfiles); //check if addon edits to core files are present
 				if ($log2 !== false) {
 					$fail = true;
-				  $msg .= MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_FAIL;
+				  $msg .= MODULE_ADDON_EDIT_FAIL;
 				} else {
-				  $msg .= MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_OK;
+				  $msg .= MODULE_ADDON_EDIT_OK;
 				}
 				if ($fail) {
 				  $detail = tep_log_detail($log . '<br>' . $log2);
@@ -155,32 +228,20 @@ define('MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST','This test doesn\'t check any
 				} else {
 				//all checks passed - set module version in database (suppress checks next time)
 					tep_db_query("update configuration set configuration_value = '".$file_version."' where configuration_key = 'MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK'");
-					$msg = sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_OK,$db_version,$file_version);
+					$msg = sprintf(MODULE_ADDON_VERSION_OK,$db_version,$file_version);
 				}
 			}
 			//checks finished
-			$return = tep_image( DIR_WS_ICONS . ($fail ? 'cross.gif' : 'tick.gif'), '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . ($fail ? MODULE_CONTENT_PRODUCT_INFO_XSELL_VALIDATION_FAIL : MODULE_CONTENT_PRODUCT_INFO_XSELL_VALIDATION_OK) . '<br>' . $msg . '</span>';
-			if ($reset) $return .= '<br>' . tep_draw_button(MODULE_CONTENT_PRODUCT_INFO_XSELL_FILE_BTN, 'wrench', tep_href_link('reset_version.php', 'var=MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK&page=modules_content.php&module=cm_pi_xsell'));
-			if (strlen($detail) > 0) $return .= '<br><span class="log_detail">' . tep_draw_button(MODULE_CONTENT_PRODUCT_INFO_XSELL_LOG_BTN, 'document-b','','',array('type'=>'reset')).'</span>'.$detail;
+			$return = tep_image( DIR_WS_ICONS . ($fail ? 'cross.gif' : 'tick.gif'), '', '16', '16', 'style="vertical-align:middle;"' ) . ' <span style="vertical-align:middle; font-weight:bold;">' . ($fail ? MODULE_ADDON_VALIDATION_FAIL : MODULE_ADDON_VALIDATION_OK) . '<br>' . $msg . '</span>';
+			if ($reset) $return .= '<br>' . tep_draw_button(MODULE_ADDON_FILE_BTN, 'wrench', tep_href_link('reset_version.php', 'var=MODULE_CONTENT_PRODUCT_INFO_XSELL_VERSION_CHECK&page=modules_content.php&module=cm_pi_xsell'));
+			if (strlen($detail) > 0) $return .= '<br><span class="log_detail">' . tep_draw_button(MODULE_ADDON_LOG_BTN, 'document-b','','',array('type'=>'reset')).'</span>'.$detail;
 			return $return;
 		} 
 	} 
+
 	// Check whether all new files have been uploaded
-	if( !function_exists( 'tep_xsell_upload_error' ) ) {
-		function tep_xsell_upload_error() {
-			global $language;
-			$newfiles = array(
-				DIR_FS_ADMIN . DIR_WS_BOXES . 'xsell.php',
-				DIR_FS_ADMIN . DIR_WS_FUNCTIONS . 'xsell.php',
-				DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/modules/boxes/xsell.php',
-				DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/reset_version.php',
-				DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '/xsell.php',
-				DIR_FS_ADMIN . 'reset_version.php',
-				DIR_FS_ADMIN . 'xsell.php',
-				DIR_FS_CATALOG_LANGUAGES . $language . '/modules/content/product_info/cm_pi_xsell.php',
-				DIR_FS_CATALOG_MODULES . 'content/product_info/templates/xsell.php',
-				DIR_FS_CATALOG_MODULES . 'xsell_products.php'
-			);
+	if( !function_exists( 'tep_addon_upload_error' ) ) {
+		function tep_addon_upload_error($newfiles) {
 			$missing = '';
 			foreach ($newfiles as $file) {
 				if (!file_exists($file)) $missing .= $file.'<br><br>';
@@ -190,27 +251,19 @@ define('MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST','This test doesn\'t check any
 				return false;
 			} else {
 			// failed, so return the errors
-				return '<h4>'.MODULE_CONTENT_PRODUCT_INFO_XSELL_UPLOAD_FAIL.'</h4>'.$missing;
+				return '<h4>'.MODULE_ADDON_UPLOAD_FAIL.'</h4>'.$missing;
 			}
 		} 
 	} 
-	// Check whether all new files have been uploaded
-	if( !function_exists( 'tep_xsell_edit_error' ) ) {
-		function tep_xsell_edit_error() {
-			global $language;
-			$editfiles = array(
-				DIR_FS_ADMIN . 'categories.php' => array('XSELL-ADM-CAT',8),
-				DIR_FS_ADMIN . DIR_WS_INCLUDES . 'application_top.php' => array('XSELL-ADM-APP-TOP',1),
-				DIR_FS_ADMIN . DIR_WS_FUNCTIONS . 'general.php' => array('XSELL-ADM-GENERAL-FUNCTIONS',3),
-				DIR_FS_ADMIN . DIR_WS_LANGUAGES . $language . '.php' => array('XSELL-ADM-LANGUAGE',1),
-				DIR_FS_CATALOG . DIR_WS_INCLUDES . 'application_top.php' => array('XSELL-CAT-APP-TOP',2),
-				DIR_FS_CATALOG . DIR_WS_FUNCTIONS . 'cache.php' => array('XSELL-CAT-CACHE-FUNCTION',1)
-			);
+
+	// Check whether all core files have been edited
+	if( !function_exists( 'tep_addon_edit_error' ) ) {
+		function tep_addon_edit_error($editfiles) {
 			$missing = '';
 			foreach ($editfiles as $file => $edits) {
-				if (!file_exists($file)) $missing .= $file.sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_NOT_FOUND).'<br><br>';
+				if (!file_exists($file)) $missing .= $file.sprintf(MODULE_ADDON_EDIT_NOT_FOUND).'<br><br>';
 			  elseif (($found = tep_check_edit_error($file,$edits)) !== false) {
-					$missing .= $file.sprintf(MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_FOUND,$found,$edits[1]).'<br><br>';
+					$missing .= $file.sprintf(MODULE_ADDON_EDIT_FOUND,$found,$edits[1]).'<br><br>';
 				}
 			}
 			if (strlen($missing) == 0) {
@@ -218,7 +271,7 @@ define('MODULE_CONTENT_PRODUCT_INFO_XSELL_NO_TEST','This test doesn\'t check any
 				return false;
 			} else {
 			// failed, so return the errors
-				return '<h4>'.MODULE_CONTENT_PRODUCT_INFO_XSELL_EDIT_FAIL.'</h4>'.$missing;
+				return '<h4>'.MODULE_ADDON_EDIT_FAIL.'</h4>'.$missing;
 			}
 		} 
 	} 
@@ -244,7 +297,7 @@ $(document).ready(function() {
 
 	$( "#detail_div" ).dialog({
 		autoOpen: false,
-		title: "'.MODULE_CONTENT_PRODUCT_INFO_XSELL_LOG_TITLE.'",
+		title: "'.MODULE_ADDON_LOG_TITLE.'",
 		width : 500,
 		height : 400,
 		position : { my: "top", at: "top", of: "#contentText" }

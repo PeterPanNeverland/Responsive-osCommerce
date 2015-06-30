@@ -1,5 +1,6 @@
-<style type='text/css'> div.xsell .item {min-width: 260px} </style>
 <div class="col-sm-<?php echo $content_width . ' ' . MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT_ALIGN; ?> xsell">
+  <style type='text/css' scoped> div.xsell .item {min-width: 260px}
+	/*div.xsell .buynow {margin-right: 10px;*/} </style>
   <h4 class="page-header"><?php echo MODULE_CONTENT_PRODUCT_INFO_XSELL_PRODUCTS_TEXT; ?></h4>
 <?php
 if (MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS == 'True') {

@@ -47,9 +47,9 @@ order by sort_order asc limit " . (int)MODULE_CONTENT_PRODUCT_INFO_XSELL_CONTENT
 		if (tep_not_null($product['specials_new_products_price'])) {
 		$xsell_products_data .= '      <div class="col-xs-6"><div class="btn-group" role="group"><button type="button" class="btn btn-default"><del>' .  $currencies->display_price($product['products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</del></span>&nbsp;&nbsp;<span class="productSpecialPrice">' . $currencies->display_price($product['specials_new_products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</button></div></div>';
 		} else {
-		$xsell_products_data .= '      <div class="col-xs-6"><div class="btn-group" role="group"><button type="button" class="btn btn-default">' . $currencies->display_price($product['products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</button></div></div>';
+		$xsell_products_data .= '      <div class="col-xs-5"><div class="btn-group" role="group"><button type="button" class="btn btn-default">' . $currencies->display_price($product['products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</button></div></div>';
 		}
-		$xsell_products_data .= '       <div class="col-xs-6 text-right">' . tep_draw_button(IMAGE_BUTTON_IN_CART, 'glyphicon glyphicon-shopping-cart', tep_href_link('product_info.php', tep_get_all_get_params(array('action')) . 'action=buy_now&product_to_buy_id=' . $product['products_id']), NULL, NULL, 'btn-success btn-sm') . '</div>';
+		$xsell_products_data .= '       <div class="col-xs-7 text-right buynow">' . tep_draw_button(IMAGE_BUTTON_IN_CART, 'glyphicon glyphicon-shopping-cart', tep_href_link('product_info.php', tep_get_all_get_params(array('action')) . 'action=buy_now&product_to_buy_id=' . $product['products_id']), NULL, NULL, 'btn-success btn-sm') . '</div>';
 		$xsell_products_data .= '      </div>';
 		
 		$xsell_products_data .= '    </div>';
