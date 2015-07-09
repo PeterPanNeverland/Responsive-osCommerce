@@ -15,6 +15,29 @@
   require(DIR_WS_CLASSES . 'currencies.php');
   $currencies = new currencies();
 
+// SHIP-EXCLUDES-ADM-CAT-EDIT-1
+  if (defined('MODULE_SHIPPING_EXCLUDES_ENABLED')) {
+    require(DIR_WS_LANGUAGES . $language . '/categories/shipping_excludes.php');
+		
+    $excluded_modules = array();
+		$tmp = explode(',',MODULE_SHIPPING_EXCLUDES_ENABLED);
+		foreach ($tmp as $tmp_module) {
+		
+			include(DIR_FS_CATALOG . DIR_WS_LANGUAGES . $language . '/modules/shipping/' . $tmp_module . '.php');
+			include(DIR_FS_CATALOG . DIR_WS_MODULES . 'shipping/' . $tmp_module . '.php');
+			
+			if (class_exists($tmp_module)) {
+			
+				$ship_module = new $tmp_module;
+				$excluded_modules[$tmp_module] = array(
+				                             'code' => $tmp_module,
+																		 'title' => $ship_module->title
+																		);
+			} else 	$messageStack->add(sprintf(TEXT_MSG_CLASS_NOT_FOUND,$tmp_module), 'error');
+		}
+  } 
+// End of shipping excludes edit
+
   $action = (isset($HTTP_GET_VARS['action']) ? $HTTP_GET_VARS['action'] : '');
 
   if (tep_not_null($action)) {
@@ -33,6 +56,27 @@
 
         tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $HTTP_GET_VARS['cPath'] . '&pID=' . $HTTP_GET_VARS['pID']));
         break;
+// SHIP-EXCLUDES-ADM-CAT-EDIT-2
+      case 'setshipping':
+			  if (defined('MODULE_SHIPPING_EXCLUDES_ENABLED') && count($excluded_modules) > 0 ) {
+				  if (array_key_exists($_GET['module'],$excluded_modules)) {
+						if ( ($_GET['flag'] == '0') || ($_GET['flag'] == '1') ) {
+							if (isset($_GET['pID'])) {
+								if ($_GET['flag'] == '1') {
+									$sql_data_array = array('shipping_code' => tep_db_prepare_input($_GET['module']),
+																					'products_id' => (int)tep_db_prepare_input($_GET['pID'])); 
+									tep_db_perform('shipping_exclusions', $sql_data_array);
+								} else {
+									tep_db_query("delete from shipping_exclusions where products_id = '" . (int)$_GET['pID'] . "' and shipping_code = '". $_GET['module'] ."'");
+								}
+							}
+						}
+		
+						tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $_GET['cPath'] . '&pID=' . $_GET['pID']));
+					}
+				}
+        break;
+// End of shipping excludes edit
       case 'insert_category':
       case 'update_category':
         if (isset($HTTP_POST_VARS['categories_id'])) $categories_id = tep_db_prepare_input($HTTP_POST_VARS['categories_id']);
@@ -815,8 +859,19 @@ $('#products_date_available').datepicker({
             <td valign="top"><table border="0" width="100%" cellspacing="0" cellpadding="2">
               <tr class="dataTableHeadingRow">
                 <td class="dataTableHeadingContent"><?php echo TABLE_HEADING_CATEGORIES_PRODUCTS; ?></td>
-                <td class="dataTableHeadingContent" align="center"><?php echo TABLE_HEADING_STATUS; ?></td>
-                <td class="dataTableHeadingContent" align="right"><?php echo TABLE_HEADING_ACTION; ?>&nbsp;</td>
+                <td class="dataTableHeadingContent" align="center"><?php echo TABLE_HEADING_STATUS; ?></td><?php
+// SHIP-EXCLUDES-ADM-CAT-EDIT-3
+  if (defined('MODULE_SHIPPING_EXCLUDES_ENABLED') && count($excluded_modules) > 0 ) {
+    foreach (	$excluded_modules as $module) { // NB language defs are in admin/inc/lang/eng/categories/shipping_excludes.php
+		  if (strlen($module['title']) < 15 ) 
+			  $title = $module['title'];
+			else 
+			  $title = substr($module['title'],0,12).'&hellip;';
+      echo '<td class="dataTableHeadingContent" align="center">' . sprintf(TABLE_HEADING_EXCLUDE_MODULE,$title) . '</td>' . "\n";
+		}
+  } 
+// End of shipping excludes edit
+?>                <td class="dataTableHeadingContent" align="right"><?php echo TABLE_HEADING_ACTION; ?>&nbsp;</td>
               </tr>
 <?php
     $categories_count = 0;
@@ -850,18 +905,36 @@ $('#products_date_available').datepicker({
       }
 ?>
                 <td class="dataTableContent"><?php echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, tep_get_path($categories['categories_id'])) . '">' . tep_image(DIR_WS_ICONS . 'folder.gif', ICON_FOLDER) . '</a>&nbsp;<strong>' . $categories['categories_name'] . '</strong>'; ?></td>
-                <td class="dataTableContent" align="center">&nbsp;</td>
-                <td class="dataTableContent" align="right"><?php if (isset($cInfo) && is_object($cInfo) && ($categories['categories_id'] == $cInfo->categories_id) ) { echo tep_image(DIR_WS_IMAGES . 'icon_arrow_right.gif', ''); } else { echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $categories['categories_id']) . '">' . tep_image(DIR_WS_IMAGES . 'icon_info.gif', IMAGE_ICON_INFO) . '</a>'; } ?>&nbsp;</td>
+                <td class="dataTableContent" align="center">&nbsp;</td><?php
+// SHIP-EXCLUDES-ADM-CAT-EDIT-4
+  if (defined('MODULE_SHIPPING_EXCLUDES_ENABLED') && count($excluded_modules) > 0 ) {
+    foreach (	$excluded_modules as $module) { 
+?>                <td class="dataTableContent" align="center">&nbsp;</td><?php
+		}
+  }
+// End of shipping excludes edit
+?>                <td class="dataTableContent" align="right"><?php if (isset($cInfo) && is_object($cInfo) && ($categories['categories_id'] == $cInfo->categories_id) ) { echo tep_image(DIR_WS_IMAGES . 'icon_arrow_right.gif', ''); } else { echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $categories['categories_id']) . '">' . tep_image(DIR_WS_IMAGES . 'icon_info.gif', IMAGE_ICON_INFO) . '</a>'; } ?>&nbsp;</td>
               </tr>
 <?php
     }
 
     $products_count = 0;
+// SHIP-EXCLUDES-ADM-CAT-EDIT-5
+    $select = 'select p.products_id, pd.products_name, p.products_quantity, p.products_image, p.products_price, p.products_date_added, p.products_last_modified, p.products_date_available, p.products_status';
+		$from = 'from products_description pd, products_to_categories p2c, products p ';
+	
+		if (defined('MODULE_SHIPPING_EXCLUDES_ENABLED') && count($excluded_modules) > 0 ) {
+			foreach (	$excluded_modules as $module) { 
+				$select .= ', ifnull(' . $module['code'] . '.shipping_code,0) as '. $module['code'];
+				$from .= ' left join shipping_exclusions ' . $module['code'] . ' on p.products_id = ' . $module['code'] . '.products_id and ' . $module['code'] . '.shipping_code = "' . $module['code'] . '" ';;
+			}
+		}
     if (isset($HTTP_GET_VARS['search'])) {
-      $products_query = tep_db_query("select p.products_id, pd.products_name, p.products_quantity, p.products_image, p.products_price, p.products_date_added, p.products_last_modified, p.products_date_available, p.products_status, p2c.categories_id from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd, " . TABLE_PRODUCTS_TO_CATEGORIES . " p2c where p.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "' and p.products_id = p2c.products_id and pd.products_name like '%" . tep_db_input($search) . "%' order by pd.products_name");
+      $products_query = tep_db_query($select.", p2c.categories_id " . $from . " where p.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "' and p.products_id = p2c.products_id and pd.products_name like '%" . tep_db_input($search) . "%' order by pd.products_name");
     } else {
-      $products_query = tep_db_query("select p.products_id, pd.products_name, p.products_quantity, p.products_image, p.products_price, p.products_date_added, p.products_last_modified, p.products_date_available, p.products_status from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd, " . TABLE_PRODUCTS_TO_CATEGORIES . " p2c where p.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "' and p.products_id = p2c.products_id and p2c.categories_id = '" . (int)$current_category_id . "' order by pd.products_name");
-    }
+      $products_query = tep_db_query($select." " . $from . " where p.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "' and p.products_id = p2c.products_id and p2c.categories_id = '" . (int)$current_category_id . "' order by pd.products_name");
+    } 
+// End of shipping excludes edit
     while ($products = tep_db_fetch_array($products_query)) {
       $products_count++;
       $rows++;
@@ -891,8 +964,21 @@ $('#products_date_available').datepicker({
       } else {
         echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, 'action=setflag&flag=1&pID=' . $products['products_id'] . '&cPath=' . $cPath) . '">' . tep_image(DIR_WS_IMAGES . 'icon_status_green_light.gif', IMAGE_ICON_STATUS_GREEN_LIGHT, 10, 10) . '</a>&nbsp;&nbsp;' . tep_image(DIR_WS_IMAGES . 'icon_status_red.gif', IMAGE_ICON_STATUS_RED, 10, 10);
       }
-?></td>
-                <td class="dataTableContent" align="right"><?php if (isset($pInfo) && is_object($pInfo) && ($products['products_id'] == $pInfo->products_id)) { echo tep_image(DIR_WS_IMAGES . 'icon_arrow_right.gif', ''); } else { echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $products['products_id']) . '">' . tep_image(DIR_WS_IMAGES . 'icon_info.gif', IMAGE_ICON_INFO) . '</a>'; } ?>&nbsp;</td>
+?></td><?php
+// SHIP-EXCLUDES-ADM-CAT-EDIT-6
+  if (defined('MODULE_SHIPPING_EXCLUDES_ENABLED') && count($excluded_modules) > 0 ) {
+    foreach (	$excluded_modules as $module) { // NB language defs are in admin/inc/lang/eng/categories/shipping_excludes.php
+      echo '<td class="dataTableContent" align="center">';
+      if ($products[$module['code']]) { 
+        echo '<a href="' . tep_href_link('categories.php', 'action=setshipping&flag=0&module='.$module['code'].'&pID=' . $products['products_id'] . '&cPath=' . $cPath) . '">' . tep_image(DIR_WS_IMAGES . 'icon_status_red.gif', sprintf(TEXT_CLICK_ALLOW,$module['title']), 10, 10) . '</a>';
+      } else {
+        echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, 'action=setshipping&flag=1&module='.$module['code'].'&pID=' . $products['products_id'] . '&cPath=' . $cPath) . '">' . tep_image(DIR_WS_IMAGES . 'icon_status_red_light.gif', sprintf(TEXT_CLICK_EXCLUDE,$module['title']), 10, 10) . '</a>' ;
+      }
+			echo '</td>'."\n";
+		}
+  } 
+// End of shipping excludes edit
+?>                <td class="dataTableContent" align="right"><?php if (isset($pInfo) && is_object($pInfo) && ($products['products_id'] == $pInfo->products_id)) { echo tep_image(DIR_WS_IMAGES . 'icon_arrow_right.gif', ''); } else { echo '<a href="' . tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $products['products_id']) . '">' . tep_image(DIR_WS_IMAGES . 'icon_info.gif', IMAGE_ICON_INFO) . '</a>'; } ?>&nbsp;</td>
               </tr>
 <?php
     }

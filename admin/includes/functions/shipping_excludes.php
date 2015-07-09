@@ -1,0 +1,36 @@
+<?php
+/*
+  $Id$
+  
+  admin functions for addon Shipping Excludes
+
+  osCommerce, Open Source E-Commerce Solutions
+  http://www.oscommerce.com
+
+  Copyright (c) 2015 osCommerce
+
+  Released under the GNU General Public License
+*/
+
+function tep_shipping_exclude_db_check() {
+	$query = tep_db_query('SHOW TABLES LIKE \'shipping_exclusions\'');
+	if (tep_db_num_rows($query) == 0){
+		tep_db_query('CREATE TABLE shipping_exclusions (
+		 shipping_code varchar(64) NOT NULL,
+		 products_id int(11) NOT NULL,
+		 PRIMARY KEY (shipping_code,products_id)
+		)');
+	}
+}
+
+function tep_toggle_shipping_status($pID,$code,$flag) {
+	if ($flag == '1') {
+  	$sql_data_array = array('shipping_code' => tep_db_prepare_input($code),
+													  'products_id' => (int)tep_db_prepare_input($pID)); 
+    tep_db_perform('shipping_exclusions', $sql_data_array);
+	} elseif ($flag == '0') {
+    tep_db_query("delete from shipping_exclusions where products_id = '" . (int)$pID . "' and shipping_code = '". tep_db_prepare_input($code) ."'");
+	}
+}
+
+?>
