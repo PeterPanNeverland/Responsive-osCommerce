@@ -18,6 +18,7 @@
 // SHIP-EXCLUDES-ADM-CAT-EDIT-1
   if (defined('MODULE_SHIPPING_EXCLUDES_ENABLED')) {
     require(DIR_WS_LANGUAGES . $language . '/categories/shipping_excludes.php');
+    require(DIR_WS_FUNCTIONS . 'shipping_excludes.php');
 		
     $excluded_modules = array();
 		$tmp = explode(',',MODULE_SHIPPING_EXCLUDES_ENABLED);
@@ -60,17 +61,7 @@
       case 'setshipping':
 			  if (defined('MODULE_SHIPPING_EXCLUDES_ENABLED') && count($excluded_modules) > 0 ) {
 				  if (array_key_exists($_GET['module'],$excluded_modules)) {
-						if ( ($_GET['flag'] == '0') || ($_GET['flag'] == '1') ) {
-							if (isset($_GET['pID'])) {
-								if ($_GET['flag'] == '1') {
-									$sql_data_array = array('shipping_code' => tep_db_prepare_input($_GET['module']),
-																					'products_id' => (int)tep_db_prepare_input($_GET['pID'])); 
-									tep_db_perform('shipping_exclusions', $sql_data_array);
-								} else {
-									tep_db_query("delete from shipping_exclusions where products_id = '" . (int)$_GET['pID'] . "' and shipping_code = '". $_GET['module'] ."'");
-								}
-							}
-						}
+					  tep_toggle_shipping_status($_GET['pID'],$_GET['module'],$_GET['flag']);
 		
 						tep_redirect(tep_href_link(FILENAME_CATEGORIES, 'cPath=' . $_GET['cPath'] . '&pID=' . $_GET['pID']));
 					}
