@@ -10,7 +10,7 @@
     /************************************** SHOW THE TITLE AND BREADCRUMB **************************************/
     echo '<div style="float:left; width:100%;">';
     echo '<div class="main" style="float:left; padding-bottom:4px; padding-left:72px; font-weight:bold;">' . TEXT_PRODUCTS_PAGE_TITLE . '</div>';
-    echo '<div class="main" style="float:left; padding-bottom:4px; padding-left:330px; font-weight:bold;">' . TEXT_PRODUCTS_BREADCRUMB . '</div>';
+    echo '<div class="main" style="float:left; padding-bottom:4px; padding-left:460px; font-weight:bold;">' . TEXT_PRODUCTS_BREADCRUMB . '</div>';
     echo '</div>';
  
     for ($i=0; $i < $langCnt; $i++) {
@@ -24,7 +24,7 @@
     /************************************** SHOW THE ALTERNATE AND SEO TITLES **************************************/
     echo '<div style="float:left; width:100%;">';
     echo '<div class="main" style="float:left; padding-top:20px; padding-bottom:4px; padding-left:72px; font-weight:bold;">' . TEXT_PRODUCTS_PAGE_TITLE_ALT . '</div>';
-    echo '<div class="main" style="float:left; padding-top:20px; padding-bottom:4px; padding-left:253px; font-weight:bold;">' . TEXT_PRODUCTS_PAGE_TITLE_URL . '</div>';
+    echo '<div class="main" style="float:left; padding-top:20px; padding-bottom:4px; padding-left:389px; font-weight:bold;">' . TEXT_PRODUCTS_PAGE_TITLE_URL . '</div>';
     echo '</div>';
     
     for ($i=0; $i < $langCnt; $i++) {
@@ -38,7 +38,7 @@
     /************************************** SHOW THE DESCRIPTION AND KEYWORDS **************************************/
     echo '<div style="float:left; width:100%;">';
     echo '<div class="main" style="float:left; padding-top:20px; padding-bottom:4px; padding-left:72px; font-weight:bold;">' . TEXT_PRODUCTS_HEADER_DESCRIPTION . '</div>';
-    echo '<div class="main" style="float:left; padding-top:20px; padding-bottom:4px; padding-left:277px; font-weight:bold;">' . TEXT_PRODUCTS_KEYWORDS . '</div>';
+    echo '<div class="main" style="float:left; padding-top:20px; padding-bottom:4px; padding-left:420px; font-weight:bold;">' . TEXT_PRODUCTS_KEYWORDS . '</div>';
     echo '</div>';
     
     for ($i=0; $i < $langCnt; $i++) {
@@ -54,7 +54,7 @@
     if (HEADER_TAGS_ENABLE_HTML_EDITOR == 'No Editor' || HEADER_TAGS_ENABLE_EDITOR_LISTING_TEXT == 'false') {
     echo '<div style="float:left; width:100%;">';
     echo '<div class="main" style="float:left; padding-top:20px; padding-bottom:4px; padding-left:72px; font-weight:bold;">' . TEXT_PRODUCTS_LISTING_TEXT . '</div>';
-    echo '<div class="main" style="float:left; padding-top:20px; padding-bottom:4px; padding-left:258px; font-weight:bold;">' . TEXT_PRODUCTS_SUB_TEXT . '</div>';
+    echo '<div class="main" style="float:left; padding-top:20px; padding-bottom:4px; padding-left:398px; font-weight:bold;">' . TEXT_PRODUCTS_SUB_TEXT . '</div>';
     echo '</div>';
     
     for ($i=0; $i < $langCnt; $i++) {
