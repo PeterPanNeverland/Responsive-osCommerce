@@ -1,7 +1,7 @@
 <?php
 /* $Id$
 
-TODO: 
+@BrockleyJohn TODO: 
 - SECURITY
 ... clean input vars before use and into database
 - check caching (cheque cashing?)
@@ -11,7 +11,7 @@ TODO:
 
 osCommerce, Open Source E-Commerce Solutions
 http://www.oscommerce.com
-Copyright (c) 2002 osCommerce
+Copyright (c) 2015 osCommerce
 
 Released under the GNU General Public License
 xsell.php
@@ -98,7 +98,7 @@ and many others since
 
   require(DIR_WS_INCLUDES . 'template_top.php');
 ?>
-    <table border="0" width="100%" cellspacing="0" cellpadding="2">
+    <table border="0" width="100%" cellspacing="2" cellpadding="2">
       <tr>
         <td width="100%"><table border="0" width="100%" cellspacing="0" cellpadding="0">
           <tr>
@@ -121,7 +121,7 @@ and many others since
 <?php
   if ($_GET['add_related_product_ID'] == ''){
 ?>
-  <table border="0" cellspacing="1" cellpadding="2" bgcolor="#999999" align="center">
+  <table border="0" width="100%" cellspacing="1" cellpadding="2" bgcolor="#999999" align="center">
    <tr class="dataTableHeadingRow">
     <td class="dataTableHeadingContent" width="75"><?php echo TABLE_HEADING_PRODUCT_ID;?></td>
     <td class="dataTableHeadingContent"><?php echo TABLE_HEADING_PRODUCT_MODEL;?></td>
