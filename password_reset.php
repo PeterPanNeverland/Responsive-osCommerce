@@ -106,21 +106,21 @@
     <div class="form-group has-feedback">
       <label for="inputPassword" class="control-label col-sm-3"><?php echo ENTRY_PASSWORD; ?></label>
       <div class="col-sm-9">
-        <?php echo tep_draw_input_field('password', NULL, 'required aria-required="true"  autofocus="autofocus" id="inputPassword" placeholder="' . ENTRY_PASSWORD . '"'); ?>
+        <?php echo tep_draw_input_field('password', NULL, 'required aria-required="true"  autofocus="autofocus" id="inputPassword" placeholder="' . ENTRY_PASSWORD . '"', 'password'); ?>
         <?php echo FORM_REQUIRED_INPUT; ?>
       </div>
     </div>
     <div class="form-group has-feedback">
       <label for="inputConfirm" class="control-label col-sm-3"><?php echo ENTRY_PASSWORD_CONFIRMATION; ?></label>
       <div class="col-sm-9">
-        <?php echo tep_draw_input_field('confirmation', NULL, 'required aria-required="true" id="inputConfirm" placeholder="' . ENTRY_PASSWORD_CONFIRMATION . '"'); ?>
+        <?php echo tep_draw_input_field('confirmation', NULL, 'required aria-required="true" id="inputConfirm" placeholder="' . ENTRY_PASSWORD_CONFIRMATION . '"', 'password'); ?>
         <?php echo FORM_REQUIRED_INPUT; ?>
       </div>
     </div>
   </div>
 
   <div class="buttonSet">
-    <div class="text-right"><?php echo tep_draw_button(IMAGE_BUTTON_CONTINUE, 'glyphicon glyphicon-chevron-right', null, 'primary', null, 'btn-success'); ?></div>
+    <div class="text-right"><?php echo tep_draw_button(IMAGE_BUTTON_CONTINUE, 'fa fa-angle-right', null, 'primary', null, 'btn-success'); ?></div>
   </div>
 </div>
 
