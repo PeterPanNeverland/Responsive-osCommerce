@@ -51,10 +51,10 @@ if ( file_exists(DIR_WS_INCLUDES . 'header_tags.php') ) {
    <script src="ext/js/excanvas.min.js"></script>
 <![endif]-->
  
-<script src="ext/jquery/jquery-1.11.1.min.js"></script>
+<script src="ext/jquery/jquery-1.11.1.min.js" async></script>
 
 <!-- font awesome -->
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
 <?php echo $oscTemplate->getBlocks('header_tags'); ?>
 </head>
