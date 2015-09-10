@@ -48,6 +48,7 @@
         $languages = tep_get_languages();
         for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
           $manufacturers_url_array = $HTTP_POST_VARS['manufacturers_url'];
+          $manufacturers_description_array = $HTTP_POST_VARS['manufacturers_description'];
           /*** Begin Header Tags SEO ***/
           $manufacturers_htc_title_array = $HTTP_POST_VARS['manufacturers_htc_title_tag'];
           $manufacturers_htc_title_alt_array = $HTTP_POST_VARS['manufacturers_htc_title_tag_alt'];
@@ -69,6 +70,7 @@
            'manufacturers_htc_description' => tep_db_prepare_input($manufacturers_htc_description_array[$language_id]),
            'manufacturers_htc_breadcrumb_text' => (tep_not_null($manufacturers_htc_breadcrumb_array[$language_id]) ? tep_db_prepare_input(strip_tags($manufacturers_htc_breadcrumb_array[$language_id])) : strip_tags($manufacturers_name)));
           /*** End Header Tags SEO ***/         
+          $sql_data_array['manufacturers_description'] = tep_db_prepare_input($manufacturers_description_array[$language_id]);
           if ($action == 'insert') {
             $insert_sql_data = array('manufacturers_id' => $manufacturers_id,
                                      'languages_id' => $language_id);
@@ -212,10 +214,11 @@
       $contents[] = array('text' => '<br />' . TEXT_MANUFACTURERS_NAME . '<br />' . tep_draw_input_field('manufacturers_name'));
       $contents[] = array('text' => '<br />' . TEXT_MANUFACTURERS_IMAGE . '<br />' . tep_draw_file_field('manufacturers_image'));
 
-      $manufacturer_inputs_string = '';
+      $manufacturer_inputs_string = $manufacturer_description_string = '';
       $languages = tep_get_languages();
       for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
         $manufacturer_inputs_string .= '<br />' . tep_image(tep_catalog_href_link(DIR_WS_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], '', 'SSL'), $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_url[' . $languages[$i]['id'] . ']');
+        $manufacturer_description_string .= '<br />' . tep_image(tep_catalog_href_link(DIR_WS_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], '', 'SSL'), $languages[$i]['name'], '', '', 'style="vertical-align: top;"') . '&nbsp;' . tep_draw_textarea_field('manufacturers_description[' . $languages[$i]['id'] . ']', 'soft', '80', '10');
         /*** Begin Header Tags SEO ***/ 
         $manufacturer_htc_title_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag[' . $languages[$i]['id'] . ']');
         $manufacturer_htc_title_alt_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag_alt[' . $languages[$i]['id'] . ']');
@@ -228,6 +231,7 @@
       }
 
       $contents[] = array('text' => '<br />' . TEXT_MANUFACTURERS_URL . $manufacturer_inputs_string);
+      $contents[] = array('text' => '<br />' . TEXT_MANUFACTURERS_DESCRIPTION . $manufacturer_description_string);
       /*** Begin Header Tags SEO ***/
       $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title' . $manufacturer_htc_title_string);
       $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title Alt' . $manufacturer_htc_title_alt_string);
@@ -247,10 +251,11 @@
       $contents[] = array('text' => '<br />' . TEXT_MANUFACTURERS_NAME . '<br />' . tep_draw_input_field('manufacturers_name', $mInfo->manufacturers_name));
       $contents[] = array('text' => '<br />' . TEXT_MANUFACTURERS_IMAGE . '<br />' . tep_draw_file_field('manufacturers_image') . '<br />' . $mInfo->manufacturers_image);
 
-      $manufacturer_inputs_string = '';
+      $manufacturer_inputs_string = $manufacturer_description_string = '';
       $languages = tep_get_languages();
       for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
         $manufacturer_inputs_string .= '<br />' . tep_image(tep_catalog_href_link(DIR_WS_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], '', 'SSL'), $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_url[' . $languages[$i]['id'] . ']', tep_get_manufacturer_url($mInfo->manufacturers_id, $languages[$i]['id']));
+        $manufacturer_description_string .= '<br />' . tep_image(tep_catalog_href_link(DIR_WS_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], '', 'SSL'), $languages[$i]['name'], '', '', 'style="vertical-align: top;"') . '&nbsp;' . tep_draw_textarea_field('manufacturers_description[' . $languages[$i]['id'] . ']', 'soft', '80', '10', tep_get_manufacturer_description($mInfo->manufacturers_id, $languages[$i]['id']));
         /*** Begin Header Tags SEO ***/
         $manufacturer_htc_title_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag[' . $languages[$i]['id'] . ']', tep_get_manufacturer_htc_title($mInfo->manufacturers_id, $languages[$i]['id']));
         $manufacturer_htc_title_alt_string .= '<br />' . tep_image(DIR_WS_CATALOG_LANGUAGES . $languages[$i]['directory'] . '/images/' . $languages[$i]['image'], $languages[$i]['name']) . '&nbsp;' . tep_draw_input_field('manufacturers_htc_title_tag_alt[' . $languages[$i]['id'] . ']', tep_get_manufacturer_htc_title_alt($mInfo->manufacturers_id, $languages[$i]['id']));
@@ -263,6 +268,7 @@
       }
 
       $contents[] = array('text' => '<br />' . TEXT_MANUFACTURERS_URL . $manufacturer_inputs_string);
+      $contents[] = array('text' => '<br />' . TEXT_EDIT_MANUFACTURERS_DESCRIPTION . $manufacturer_description_string);
       /*** Begin Header Tags SEO ***/
       $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title' . $manufacturer_htc_title_string);
       $contents[] = array('text' => '<br />' . 'Header Tags Manufacturer Title Alt' . $manufacturer_htc_title_alt_string);
