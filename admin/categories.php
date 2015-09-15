@@ -23,7 +23,7 @@
 		tep_db_query('ALTER TABLE products ADD products_family VARCHAR( 24 )');
 	}
 	if (!tep_db_num_rows(tep_db_query("SHOW INDEX FROM products WHERE column_name = 'products_family'"))) {
-		tep_db_query('CREATE INDEX products_family ON products products_family');
+		tep_db_query('CREATE INDEX idx_products_family ON products (products_family)');
 	}
 // End of Family Categories edit
 
