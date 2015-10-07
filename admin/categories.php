@@ -19,6 +19,9 @@
 	if (!tep_db_num_rows(tep_db_query("SHOW COLUMNS FROM categories LIKE 'family_category'"))) {
 		tep_db_query('ALTER TABLE categories ADD family_category TINYINT( 1 ) NOT NULL default 0');
 	}
+	if (!tep_db_num_rows(tep_db_query("SHOW COLUMNS FROM categories LIKE 'skip'"))) {
+		tep_db_query('ALTER TABLE categories ADD skip TINYINT( 1 ) NOT NULL default 0');
+	}
 	if (!tep_db_num_rows(tep_db_query("SHOW COLUMNS FROM products LIKE 'products_family'"))) {
 		tep_db_query('ALTER TABLE products ADD products_family VARCHAR( 24 )');
 	}
