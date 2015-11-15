@@ -128,45 +128,45 @@ if (isset($_GET['products_id'])) {
 			}
 		
 			while ($product = tep_db_fetch_array($products_query)) {
-				$family_products_data .= '<div class="item list-group-item col-sm-'.$columns.'">';
-				$family_products_data .= '  <div class="productHolder equal-height">';
-				$family_products_data .= '    <a href="' . tep_href_link('product_info.php', 'products_id=' . $product['products_id']) . '">' . tep_image(DIR_WS_IMAGES . $product['products_image'], $product['products_name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT, NULL, NULL, 'img-responsive thumbnail group list-group-image') . '</a>';
-				$family_products_data .= '    <div class="caption">';
+				$family_products_data .= '<div class="item list-group-item col-sm-'.$columns.'">'."\n";
+				$family_products_data .= '  <div class="productHolder equal-height">'."\n";
+				$family_products_data .= '    <a href="' . tep_href_link('product_info.php', 'products_id=' . $product['products_id']) . '">' . tep_image(DIR_WS_IMAGES . $product['products_image'], $product['products_name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT, NULL, NULL, 'img-responsive thumbnail group list-group-image') . '</a>'."\n";
+				$family_products_data .= '    <div class="caption">'."\n";
 				$family_products_data .= '      <h2 class="group inner list-group-item-heading">';
 				$family_products_data .= '    <a href="' . tep_href_link('product_info.php', 'products_id=' . $product['products_id']) . '">' . $product['products_name'] . '</a>';
-				$family_products_data .= '      </h2>';
+				$family_products_data .= '      </h2>'."\n";
 				
-				$family_products_data .= '      <p class="group inner list-group-item-text">' . strip_tags($product['products_description'], '<br>') . '&hellip;</p><div class="clearfix"></div>';
-				$family_products_data .= '      <div class="row">';
+				$family_products_data .= '      <p class="group inner list-group-item-text">' . strip_tags($product['products_description'], '<br>') . '&hellip;</p><div class="clearfix"></div>'."\n";
+				$family_products_data .= '      <div class="row">'."\n";
 				
 				// here it goes the extras, yuck
 				$extra_list_contents = NULL;
 				// manufacturer
-				if (($lc_show_manu == true) && ($product['manufacturers_id'] !=  0)) $extra_list_contents .= '<dt>' . TABLE_HEADING_MANUFACTURER . '</dt><dd><a href="' . tep_href_link(FILENAME_DEFAULT, 'manufacturers_id=' . $product['manufacturers_id']) . '">' . $product['manufacturers_name'] . '</a></dd>';
+				if (($lc_show_manu == true) && ($product['manufacturers_id'] !=  0)) $extra_list_contents .= '<dt>' . TABLE_HEADING_MANUFACTURER . '</dt><dd><a href="' . tep_href_link(FILENAME_DEFAULT, 'manufacturers_id=' . $product['manufacturers_id']) . '">' . $product['manufacturers_name'] . '</a></dd>'."\n";
 				// model
-				if ( ($lc_show_model == true) && tep_not_null($product['products_model'])) $extra_list_contents .= '<dt>' . TABLE_HEADING_MODEL . '</dt><dd>' . $product['products_model'] . '</dd>';
+				if ( ($lc_show_model == true) && tep_not_null($product['products_model'])) $extra_list_contents .= '<dt>' . TABLE_HEADING_MODEL . '</dt><dd>' . $product['products_model'] . '</dd>'."\n";
 				// stock
-				if (($lc_show_qty == true) && (tep_get_products_stock($product['products_id'])!= 0) ) $extra_list_contents .= '<dt>' . TABLE_HEADING_QUANTITY . '</dt><dd>' . tep_get_products_stock($product['products_id']) . '</dd>';
+				if (($lc_show_qty == true) && (tep_get_products_stock($product['products_id'])!= 0) ) $extra_list_contents .= '<dt>' . TABLE_HEADING_QUANTITY . '</dt><dd>' . tep_get_products_stock($product['products_id']) . '</dd>'."\n";
 				// weight
-				if (($lc_show_lbs == true) && ($product['products_weight'] != 0)) $extra_list_contents .= '<dt>' . TABLE_HEADING_WEIGHT . '</dt><dd>' . $product['products_weight'] . '</dd>';
+				if (($lc_show_lbs == true) && ($product['products_weight'] != 0)) $extra_list_contents .= '<dt>' . TABLE_HEADING_WEIGHT . '</dt><dd>' . $product['products_weight'] . '</dd>'."\n";
 		
 				if (tep_not_null($extra_list_contents)) {
 					 $family_products_data .= '    <dl class="dl-horizontal list-group-item-text">';
 					 $family_products_data .=  $extra_list_contents;
-					 $family_products_data .= '    </dl>';
+					 $family_products_data .= '    </dl>'."\n";
 				}
 
 				if (tep_not_null($product['specials_new_products_price'])) {
-					$family_products_data .= '      <div class="col-xs-6"><div class="btn-group" role="group"><button type="button" class="btn btn-default"><del>' .  $currencies->display_price($product['products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</del></span>&nbsp;&nbsp;<span class="productSpecialPrice">' . $currencies->display_price($product['specials_new_products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</button></div></div>';
+					$family_products_data .= '      <div class="col-xs-6"><div class="btn-group" role="group"><button type="button" class="btn btn-default"><del>' .  $currencies->display_price($product['products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</del></span>&nbsp;&nbsp;<span class="productSpecialPrice">' . $currencies->display_price($product['specials_new_products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</button></div></div>'."\n";
 				} else {
-					$family_products_data .= '      <div class="col-xs-6"><div class="btn-group" role="group"><button type="button" class="btn btn-default">' . $currencies->display_price($product['products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</button></div></div>';
+					$family_products_data .= '      <div class="col-xs-6"><div class="btn-group" role="group"><button type="button" class="btn btn-default">' . $currencies->display_price($product['products_price'], tep_get_tax_rate($product['products_tax_class_id'])) . '</button></div></div>'."\n";
 				}
-				$family_products_data .= '       <div class="col-xs-6 text-right">' . tep_draw_button(IMAGE_BUTTON_IN_CART, 'glyphicon glyphicon-shopping-cart', tep_href_link('product_info.php', tep_get_all_get_params(array('action')) . 'action=buy_now&product_to_buy_id=' . $product['products_id']), NULL, NULL, 'btn-success btn-sm') . '</div>';
-				$family_products_data .= '      </div>';
+				$family_products_data .= '       <div class="col-xs-6 text-right">' . tep_draw_button(IMAGE_BUTTON_IN_CART, 'glyphicon glyphicon-shopping-cart', tep_href_link('product_info.php', tep_get_all_get_params(array('action')) . 'action=buy_now&product_to_buy_id=' . $product['products_id']), NULL, NULL, 'btn-success btn-sm') . '</div>'."\n";
+				$family_products_data .= '      </div>'."\n";
 				
-				$family_products_data .= '    </div>';
-				$family_products_data .= '  </div>';
-				$family_products_data .= '</div>';
+				$family_products_data .= '    </div>'."\n";
+				$family_products_data .= '  </div>'."\n";
+				$family_products_data .= '</div>'."\n";
 			} // end while ($product = tep_db_fetch_array($products_query))
 			echo $family_products_data;
 		} // end if (($num_results = tep_db_num_rows($products_query)) > 0)

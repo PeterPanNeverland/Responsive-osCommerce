@@ -231,6 +231,15 @@
 		}
 
   }
+// end of loop processing - catch unfinished family group	
+	if ($family_id <> 0) {
+		// do the end of the family group
+		$prod_list_contents .= '    </div>';
+		$prod_list_contents .= '  </div>';
+		$prod_list_contents .= '</div><div class="clearfix"></div>';
+		$family_id = 0;
+	}
+
 
   echo '<div id="products" class="row list-group">' . $prod_list_contents . '</div>';
 } else {
