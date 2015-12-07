@@ -171,7 +171,7 @@ if (tep_not_null($category['categories_description'])) {
 
     if ( (!isset($HTTP_GET_VARS['sort'])) || (!preg_match('/^[1-8][ad]$/', $HTTP_GET_VARS['sort'])) || (substr($HTTP_GET_VARS['sort'], 0, 1) > sizeof($column_list)) ) {
 // P2C-SORT-EDIT-3
-				if (p2c) $listing_sql .= " order by p2c.products_sort_order, pd.products_name";
+				if ($p2c) $listing_sql .= " order by p2c.products_sort_order, pd.products_name";
 				else $listing_sql .= " order by pd.products_name";
 //        $HTTP_GET_VARS['sort'] = 0;
       for ($i=0, $n=sizeof($column_list); $i<$n; $i++) {
