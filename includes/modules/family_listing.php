@@ -19,11 +19,22 @@
 // if we're looking within a category, manipulate query to a union of all products in category with all products in family categories in category
   if ($current_category_id
 	|| (isset($_GET['manufacturers_id']) && !empty($_GET['manufacturers_id']) && isset($_GET['filter_id']) && tep_not_null($_GET['filter_id']))) {
+	  $order_pos = strpos($listing_sql,'order by');
+		if ($order_pos > 0) {
+			$order_by = substr($listing_sql,$order_pos);
+			$listing_sql = substr($listing_sql,0,$order_pos);
+			$order_by = str_replace('order by ','order by products_family desc, ',$order_by);
+			$order_by = str_replace('pd.','',$order_by);
+		}
+		$listing_sql = str_replace('select ','select p.products_family, ',$listing_sql);
 		$product_sql = str_replace('final_price from ','final_price, null from ',$listing_sql);
 		$family_sql = str_replace('final_price from ','final_price, c.categories_id as family_id from categories c, ',$listing_sql);
 		$family_sql = str_replace('p2c.categories_id = ','p2c.categories_id = c.categories_id and c.family_category = 1 and c.parent_id = ',$family_sql);
-		$listing_sql = '(' . $family_sql . ') union (' . $product_sql . ')';
+//		$family_sql = str_replace('order by ','order by family_id, ',$family_sql);
+		$listing_sql = '(' . $family_sql . ') union (' . $product_sql . ') '.$order_by;
 	}
+
+//echo "SQL is [".$listing_sql. "]";
 
 // extension to split-page-results
   require(DIR_WS_CLASSES . 'split_union_results.php');
