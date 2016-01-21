@@ -84,30 +84,31 @@ if (isset($_GET['products_id'])) {
     } else {
       $sort_col = substr($_GET['sort'], 0 , 1);
       $sort_order = substr($_GET['sort'], 1);
-      $family_sql .= ' order by ';
+      $family_order = '';
       switch ($column_list[$sort_col-1]) {
         case 'FAMILY_LIST_MODEL':
-          $family_sql .= "p.products_model " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
+          $family_order = "p.products_model " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
           break;
         case 'FAMILY_LIST_NAME':
-          $family_sql .= "pd.products_name " . ($sort_order == 'd' ? 'desc' : '');
+          $family_order = "pd.products_name " . ($sort_order == 'd' ? 'desc' : '');
           break;
         case 'FAMILY_LIST_MANUFACTURER':
-          $family_sql .= "m.manufacturers_name " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
+          $family_order = "m.manufacturers_name " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
           break;
         case 'FAMILY_LIST_QUANTITY':
-          $family_sql .= "p.products_quantity " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
+          $family_order = "p.products_quantity " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
           break;
         case 'FAMILY_LIST_IMAGE':
-          $family_sql .= "pd.products_name";
+          $family_order = "pd.products_name";
           break;
         case 'FAMILY_LIST_WEIGHT':
-          $family_sql .= "p.products_weight " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
+          $family_order = "p.products_weight " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
           break;
         case 'FAMILY_LIST_PRICE':
-          $family_sql .= "products_price " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
+          $family_order = "products_price " . ($sort_order == 'd' ? 'desc' : '') . ", pd.products_name";
           break;
       }
+			if (strlen($family_order) > 0) $family_sql .= ' order by ' . $family_order;
     }
 		
 		if ((int)MODULE_CONTENT_PI_FAMILY_PRODUCTS_CONTENT_LIMIT > 0) {
