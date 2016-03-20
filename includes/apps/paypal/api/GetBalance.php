@@ -35,12 +35,18 @@
     }
 
     $post_string = substr($post_string, 0, -1);
+		
+//		echo 'call to "' . $api_url . '" with <br>'; var_dump($post_string).'<br>';
 
     $response = $OSCOM_PayPal->makeApiCall($api_url, $post_string);
-    parse_str($response, $response_array);
+		
+   if (strpos($response,'=')!==false) {
+		parse_str($response, $response_array);
 
     return array('res' => $response_array,
                  'success' => in_array($response_array['ACK'], array('Success', 'SuccessWithWarning')),
                  'req' => $params);
+								 
+}	 else return $response;
   }
 ?>

@@ -32,7 +32,10 @@
           break;
         }
       }
-    }
+    } else {
+      $ppBalanceResult['rpcStatus'] = 0;
+      $ppBalanceResult['rpcResponse'] = $ppBalanceResponse; 
+		}
   }
 
   if ( function_exists('json_encode') ) {

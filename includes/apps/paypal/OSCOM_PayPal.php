@@ -197,6 +197,10 @@
     }
 
     function hasCredentials($module, $type = null) {
+		  if (!defined('OSCOM_APP_PAYPAL_' . $module . '_STATUS')) {
+        return false;
+      }
+		
       $server = constant('OSCOM_APP_PAYPAL_' . $module . '_STATUS');
 
       if ( !in_array($server, array('1', '0')) ) {
@@ -421,6 +425,8 @@
       curl_setopt($curl, CURLOPT_FORBID_REUSE, true);
       curl_setopt($curl, CURLOPT_FRESH_CONNECT, true);
       curl_setopt($curl, CURLOPT_ENCODING, ''); // disable gzip
+	//		curl_setopt($curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
+	//		curl_setopt($curl, CURLOPT_SSL_CIPHER_LIST, 'TLSv1');
 
       if ( isset($parameters) ) {
         curl_setopt($curl, CURLOPT_POST, true);
@@ -456,9 +462,14 @@
 
       $result = curl_exec($curl);
 
-      curl_close($curl);
+if(curl_errno($curl))
+{  echo 'Error no ' . curl_errno($curl) . ' Curl error: ' . curl_error($curl);
+    $result = 'Curl error: ' . curl_error($curl);
 
-      return $result;
+} 
+     curl_close($curl);
+
+     return $result;
     }
 
     function drawButton($title = null, $link = null, $type = null, $params = null, $force_css = false) {
