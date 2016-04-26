@@ -51,7 +51,7 @@ class GoogleXmlBuilder {
     $this->_indent();
     $this->xml .= '<' . $element;
     foreach ($attributes as $key => $value) {
-      $this->xml .= ' ' . $key.'="' . htmlentities($value).'"';
+      $this->xml .= ' ' . $key.'="' . htmlentities($value,ENT_COMPAT | ENT_XML1,ini_get("default_charset"),false).'"';
     }
     $this->xml .= ">\n";
     $this->stack[] = $element;
@@ -64,16 +64,16 @@ class GoogleXmlBuilder {
     $this->_indent();
     $this->xml .= '<' . $element;
     foreach ($attributes as $key => $value) {
-      $this->xml .= ' ' . $key . '="'. htmlentities($value) . '"';
+      $this->xml .= ' ' . $key . '="'. htmlentities($value,ENT_COMPAT | ENT_XML1,ini_get("default_charset"),false) . '"';
     }
-    $this->xml .= '>' . htmlentities($content) . '</'.$element.'>' . "\n";
+    $this->xml .= '>' . htmlentities($content,ENT_COMPAT | ENT_XML1,ini_get("default_charset"),false) . '</'.$element.'>' . "\n";
   }
 
   function EmptyElement($element, $attributes = array()) {
     $this->_indent();
     $this->xml .= '<'.$element;
     foreach ($attributes as $key => $value) {
-      $this->xml .= ' '. $key . '="' . htmlentities($value) . '"';
+      $this->xml .= ' '. $key . '="' . htmlentities($value,ENT_COMPAT | ENT_XML1,ini_get("default_charset"),false) . '"';
     }
     $this->xml .= " />\n";
   }
