@@ -18,6 +18,8 @@
   require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_FINANCE);
   require(DIR_WS_CLASSES . 'finance_options.php');
 	$finance = new FinanceOptions();
+//	$show_finance = $finance->showFinance();
+	$show_finance = true;
 
   $breadcrumb->add(NAVBAR_TITLE, tep_href_link(FILENAME_FINANCE));
   require(DIR_WS_INCLUDES . 'template_top.php');
@@ -58,12 +60,6 @@
   <div class="contentText">
     <p>Spread the cost of your purchase over a year at no additional cost (Interest Free Credit), or opt for low monthly payments and take up to three years to pay it off (Low Rate Credit).</p>
     <div class="row">
-<?php
-	$show_egs = true;
-	if ($show_egs) {
-//		$no_options = count($options);
-//		echo var_dump($options);
-?>
   <style scoped>
 	  .credit-eg { font-size:12px; padding-left:0; padding-right:0; }
 	  .eg-header { font-size:14px; }
@@ -80,6 +76,13 @@
          	<li>for 12 months on purchases over &pound;500 with a deposit from 33&#37 to 50&#37;</li>
        </ul>
     </p>
+  </div>
+<?php
+	if ($show_finance) {
+//		$no_options = count($options);
+//		echo var_dump($options);
+?>
+  <div class="col-sm-12">
     <h3>Representative Examples of Interest Free Credit</h3>
   </div>
   <div class="col-sm-12">
@@ -136,12 +139,20 @@
     </div>
 <?php } ?>
   </div>
+<?php } // end if show_finance ?>
   <div class="col-sm-12">
     <h2>Low Rate Credit</h2>
     <p>Low Rate Credit is available:
             <ul>
             	<li>for periods from 12 to 36 months on purchases over &pound;280 with a deposit from 10&#37 to 50&#37;</li>
             </ul></p>
+  </div>
+<?php
+	if ($show_finance) {
+//		$no_options = count($options);
+//		echo var_dump($options);
+?>
+  <div class="col-sm-12">
     <h3>Representative Examples of Low Rate Credit</h3>
   </div>
   <div class="col-sm-12">
@@ -170,6 +181,7 @@
             ?>
 	  <div class="pay4later_button"><span>Finance Calculator</span><br>More Info
     </div>
+    <div class="clearfix"></div>
      <h2>FAQ</h2>
      <div class="FAQ">
        <h3>How can I apply for finance?</h3>
@@ -245,7 +257,7 @@ $(document).ready(function() {
 	$('div.pay4later_button').click(function() {
 		var chosenOpt = $("#finance_option").val();
 		var deposits = depositSelect(chosenOpt);
-		var productVal = $("#spend").text();
+		var productVal = $("#spend").val();
 	    $("#depositpc").html(deposits.join(''));
 		var depositpc = $("#depositpc").val()*1;// frig to make a number
 //		alert("Finance Calc params: '" + chosenOpt + "','" + productVal + "','" + depositpc + "',0");
@@ -254,8 +266,19 @@ $(document).ready(function() {
 		$("#finance_calc").dialog('open');
 	});
 
+	$( "#spend" ).change(function() {
+		var productVal = $("#spend").val();
+		var chosenOpt = $("#finance_option").val();
+		var deposits = depositSelect(chosenOpt);
+	  $("#depositpc").html(deposits.join(''));
+		var depositpc = $("#depositpc").val()*1;// frig to make a number
+//		alert("Finance Calc params: '" + chosenOpt + "','" + productVal + "','" + depositpc + "',0");
+		var fd_obj = new FinanceDetails(chosenOpt, productVal, depositpc, 0);
+		$("#finance_calc").setfromObj(fd_obj);
+	});
+
 	$( "#finance_option" ).change(function() {
-		var productVal = $("#spend").text();
+		var productVal = $("#spend").val();
 		var chosenOpt = this.value;
 //		alert("Option changed to " + chosenOpt + ", for spend of " + productVal);
 		var deposits = depositSelect(chosenOpt);
@@ -268,7 +291,7 @@ $(document).ready(function() {
 	
 	$("#depositpc").change(function() {
 		var chosenOpt = $("#finance_option").val();
-		var productVal = $("#spend").text();
+		var productVal = $("#spend").val();
 		var depositpc = $("#depositpc").val()*1;// frig to make a number
 		var depositamt = productVal * depositpc;
 		$("#depositamt").val(depositamt);
@@ -279,7 +302,7 @@ $(document).ready(function() {
 	
 	$("#depositamt").change(function() {
 		var chosenOpt = $("#finance_option").val();
-		var productVal = $("#spend").text();
+		var productVal = $("#spend").val();
 		var depositamt = $("#depositamt").val()*1;// frig to make a number
 		var fd_obj = new FinanceDetails(chosenOpt, productVal, 0, depositamt);
 		$("#finance_calc").setfromObj(fd_obj);
@@ -335,7 +358,7 @@ $.fn.bootstrapBtn = bootstrapButton            // give $().bootstrapBtn the Boot
 		echo "<input type='hidden' id='".$finance_option['code']."_max' value='".$finance_option['max_deposit']."'>\n";
 	}
 	echo "</td></tr>\n";
-    echo "<tr><td>Spend:</td><td>&pound;<span id='spend'>$finance_price</span></td>\n";
+    echo "<tr><td>Spend:</td><td>&pound;<input type='text' size='6' id='spend' value='$finance_price'></td>\n";
     echo "<tr><td>Option:</td><td><select id='finance_option'>\n";
 	foreach ($finance_options as $finance_option) {
 		echo "<option value='".$finance_option['code']."'>".$finance_option['text']."</option>\n";

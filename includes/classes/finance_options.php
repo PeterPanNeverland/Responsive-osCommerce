@@ -65,6 +65,10 @@ class FinanceOptions {
 	  $this->script_url = $this->base_url.'js_api/FinanceDetails.js.php?api_key='.$this->ApiKey;
 	}
 	
+	public function showFinance() {
+	  return ((MODULE_PAYMENT_PAY4LATER_STATUS == 'True') ? true : false);
+	}
+	
 	public function GetMinOrder() {
 	  return $this->min_goods;
 	}
