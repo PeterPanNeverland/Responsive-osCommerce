@@ -185,8 +185,8 @@
      <h2>FAQ</h2>
      <div class="FAQ">
        <h3>How can I apply for finance?</h3>
-       <p>Paying with finance will soon be available as one of the payment options in checkout, to pay for the whole of your order. In the meantime you can place your order over the phone or in the shop and we'll process the application for you.</p>
-<!--       <p>Paying with finance is now available as one of the payment options in checkout, to pay for the whole of your order. You can consider the options for finance, choose the plan and deposit amount you want, then when you confirm your order we&rsquo;ll pass you straight to Pay4Later to make your application.</p> -->
+<!--       <p>Paying with finance will soon be available as one of the payment options in checkout, to pay for the whole of your order. In the meantime you can place your order over the phone or in the shop and we'll process the application for you.</p> -->
+       <p>Paying with finance is now available as one of the payment options in checkout, to pay for the whole of your order. You can consider the options for finance, choose the plan and deposit amount you want, then when you confirm your order we&rsquo;ll pass you straight to Pay4Later to make your application.</p>
      </div>
      <div class="FAQ">
        <h3>Will I qualify for finance?</h3>

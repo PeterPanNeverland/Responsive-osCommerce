@@ -235,7 +235,7 @@
         echo '<div class="col-sm-6">';
         echo '  <div class="alert alert-info">';
         for ($i=0, $n=sizeof($confirmation['fields']); $i<$n; $i++) {
-          echo $confirmation['fields'][$i]['title'] . ' ' . $confirmation['fields'][$i]['field'];
+          echo $confirmation['fields'][$i]['title'] . ' ' . $confirmation['fields'][$i]['field'].'<br>';
         }
         echo '  </div>';
         echo '</div>';

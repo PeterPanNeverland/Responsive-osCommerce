@@ -85,6 +85,162 @@
 
   require(DIR_WS_INCLUDES . 'template_top.php');
 ?>
+<style type="text/css">
+	div.pay4later_button, div.pay4later_confirm {
+		position:relative;
+		float:right;
+		text-align:center;
+		background-color:#6666CC;
+		color:#FFFFFF;
+		padding:10px;
+		margin-right:10px;
+		margin-bottom:10px;
+		border-radius:10px;
+		cursor:pointer;
+		box-shadow: 7px 7px 3px #888888;
+	}
+	#finance_calc td {
+		font-family: Verdana,Arial,sans-serif;
+		font-size: 11px;
+		line-height: 1.5;
+	}
+	#calc.ui-dialog-content { visibility:hidden; width:0px; font-size:1px; }
+	.ui-dialog-title {font-size:small;}
+</style>
+<?php $finance = new FinanceOptions();
+echo '<script type="text/javascript" src="'.$finance->GetJsApiScript().'"></script>';
+?><script><!--
+function jqid( myid ) {
+    return "#" + myid.replace( /(:|\.|\[|\])/g, "\\$1" );
+}
+function depositSelect(chosenOpt) {
+	var deposits = [];
+	var minDeposit = $(jqid(chosenOpt + "_min")).val()*1;// frig to make a number
+	var maxDeposit = $(jqid(chosenOpt + "_max")).val()*1;// ditto
+	for (var i = minDeposit; i <= maxDeposit; i = i+5) {
+		deposits.push('<option value="',i,'">',i,'</option>');
+//		alert("add deposit " + i);
+	}
+	return deposits;
+}
+$(document).ready(function() {
+
+	$( "#finance_calc" ).dialog({
+		autoOpen: false,
+    open: function() {
+        $(this).closest(".ui-dialog")
+        .find(".ui-dialog-titlebar-close")
+//        .removeClass("ui-dialog-titlebar-close")
+ //       .addClass("pull-right")
+ //       .html("<span class='ui-button-icon-primary ui-icon ui-icon-close'></span>");
+        .html("<span style='color:#000; position:relative; top: -6px;'>x</span>");
+    },
+		title: "Finance Options Calculator",
+		width : 360,
+		height : 400,
+		position : { my: "center", at: "center" }
+	});
+
+	$('div.pay4later_confirm').click(function() {
+		var chosenCode = $("#finance_option").val();
+		var chosenOpt = $("#finance_option option[value='"+chosenCode+"']").text();
+		var depositAmt = $("#depositamt").val();
+		var loan = $("#loan").text();
+		var monthly = $("#monthly").text();
+		var term = $("#term").text();
+		var repay = $("#repay").text();
+		var apr = $("#apr").text();
+		$("#pay4later_option_id").val(chosenCode);
+		$("#option").text(chosenOpt);
+		$("#pay4later_option_text").val(chosenOpt);
+		$("#deposit").text("\u00A3"+depositAmt);
+		$("#pay4later_deposit").val(depositAmt);
+		$("#loan_amt").text("\u00A3"+loan);
+		$("#pay4later_loan").val(loan);
+		$("#monthly_amt").text("\u00A3"+monthly);
+		$("#pay4later_monthly").val(monthly);
+		$("#loan_term").text(term);
+		$("#pay4later_term").val(term);
+		$("#total").text("\u00A3"+repay);
+		$("#pay4later_total").val(repay);
+		$("#loan_apr").text(apr+'%');
+		$("#pay4later_apr").val(apr);
+		$('input[name=payment][value=pay4later]').prop("checked", true);
+		$("#finance_calc").dialog('close');
+	});
+
+	$('div.pay4later_button').click(function() {
+		var chosenOpt = $("#finance_option").val();
+		var deposits = depositSelect(chosenOpt);
+		var productVal = $("#spend").text();
+	    $("#depositpc").html(deposits.join(''));
+		var depositpc = $("#depositpc").val()*1;// frig to make a number
+//		alert("Finance Calc params: '" + chosenOpt + "','" + productVal + "','" + depositpc + "',0");
+		var fd_obj = new FinanceDetails(chosenOpt, productVal, depositpc, 0);
+		$("#finance_calc").setfromObj(fd_obj);
+		$("#finance_calc").dialog('open');
+	});
+
+	$( "#finance_option" ).change(function() {
+		var productVal = $("#spend").text();
+		var chosenOpt = this.value;
+//		alert("Option changed to " + chosenOpt + ", for spend of " + productVal);
+		var deposits = depositSelect(chosenOpt);
+	    $("#depositpc").html(deposits.join(''));
+		var depositpc = $("#depositpc").val()*1;// frig to make a number
+//		alert("Finance Calc params: '" + chosenOpt + "','" + productVal + "','" + depositpc + "',0");
+		var fd_obj = new FinanceDetails(chosenOpt, productVal, depositpc, 0);
+		$("#finance_calc").setfromObj(fd_obj);
+	});
+	
+	$("#depositpc").change(function() {
+		var chosenOpt = $("#finance_option").val();
+		var productVal = $("#spend").text();
+		var depositpc = $("#depositpc").val()*1;// frig to make a number
+		var depositamt = productVal * depositpc;
+		$("#depositamt").val(depositamt);
+//		alert("Finance Calc params: '" + chosenOpt + "','" + productVal + "','" + depositpc + "',0");
+		var fd_obj = new FinanceDetails(chosenOpt, productVal, depositpc, 0);
+		$("#finance_calc").setfromObj(fd_obj);
+	});
+	
+	$("#depositamt").change(function() {
+		var chosenOpt = $("#finance_option").val();
+		var productVal = $("#spend").text();
+		var depositamt = $("#depositamt").val()*1;// frig to make a number
+		var fd_obj = new FinanceDetails(chosenOpt, productVal, 0, depositamt);
+		$("#finance_calc").setfromObj(fd_obj);
+	});
+	
+	$.fn.setfromObj = function(fd_obj) { //set the dialog values from p4l calc return object
+		$("#depositpc").val(fd_obj.d_pc);
+		$("#depositamt").val(fd_obj.d_amount);
+		$("#loan").text(fd_obj.l_amount);
+		$("#monthly").text(fd_obj.m_inst);
+		$("#term").text(fd_obj.term);
+		$("#repay").text(fd_obj.total);
+		$("#rate").text(fd_obj.apr);
+		$("#apr").text(fd_obj.apr);
+//		alert("Return from api: '" + fd_obj.d_pc + "','" + fd_obj.d_amount + "','" + fd_obj.l_amount + "','" + fd_obj.m_inst + "','" + fd_obj.term + "','" +fd_obj.total  + "','" + fd_obj.apr + "'"); 
+//		$("#finance_calc").dialog('open');
+	}
+
+	$.fn.setDeposits = function(chosenOpt) { //clear and then populate deposit select for this option
+		this.empty();
+	//	this.find('option').remove().end();
+		var minDeposit = $(jqid(chosenOpt + "_min")).val()*1;// frig to make a number
+		var maxDeposit = $(jqid(chosenOpt + "_max")).val()*1;// ditto
+		alert("Deposit from " + minDeposit + " to " + maxDeposit);
+		for (var i = minDeposit; i <= maxDeposit; i = i+10) {
+			this.append("<option></option>").attr("value", i).text(i);
+		    alert("add deposit " + i);
+		}
+		this.val(minDeposit);
+	};
+/*	$('#finance_calc').css("visibility","visible"); */
+	
+}); //end of document ready function
+//--></script>
 
 <?php echo $payment_modules->javascript_validation(); ?>
 
@@ -279,6 +435,7 @@
 </div>
 
 </form>
+<script src="ext/jquery/ui/jquery-ui-1.10.4.min.js"></script>
 
 <?php
   require(DIR_WS_INCLUDES . 'template_bottom.php');

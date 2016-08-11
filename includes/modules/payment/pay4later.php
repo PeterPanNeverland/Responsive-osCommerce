@@ -12,7 +12,7 @@
 
   class pay4later {
     var $code, $title, $description, $enabled, $min_goods;
-	var $no_options = 6;
+	var $no_options = 7;
 // class constructor
     function __construct() {
       global $order;
@@ -34,20 +34,25 @@
 	  if (defined('MODULE_PAYMENT_PAY4LATER_OPTION_1')) {
 		  $this->options = array(); $this->min_goods = 0;
 		  for ($i = 1; $i <= $this->no_options ; $i++) {
-			$work_option = constant('MODULE_PAYMENT_PAY4LATER_OPTION_'.$i);
-			$workvalues = explode("|",$work_option);
-			if (count($workvalues)>1){ // unpack option if it's set
-				$load = array(
-					'code' => $workvalues[0],
-					'min_goods' => $workvalues[1],
-					'max_goods' => $workvalues[2],
-					'min_deposit' => $workvalues[3],
-					'max_deposit' => $workvalues[4]
-				);
-				$this->options[] = $load;
-				if ($this->min_goods == 0 || $load['min_goods'] < $this->min_goods) $this->min_goods = $load['min_goods'];
-	//			if ($load['min_goods'] < $this->min_goods) $this->min_goods = $load['min_goods'];
-			}
+			  if (defined('MODULE_PAYMENT_PAY4LATER_OPTION_'.$i)) {
+					$work_option = constant('MODULE_PAYMENT_PAY4LATER_OPTION_'.$i);
+					$workvalues = explode("|",$work_option);
+					if (count($workvalues)>1){ // unpack option if it's set
+						$load = array(
+							'code' => $workvalues[0],
+							'min_goods' => $workvalues[1],
+							'max_goods' => $workvalues[2],
+							'min_deposit' => $workvalues[3],
+							'max_deposit' => $workvalues[4]
+						);
+						$this->options[] = $load;
+						if ($this->min_goods == 0 || $load['min_goods'] < $this->min_goods) $this->min_goods = $load['min_goods'];
+			//			if ($load['min_goods'] < $this->min_goods) $this->min_goods = $load['min_goods'];
+					}
+				}  else {
+					$this->insert_option($i);
+				}
+
 		  }
 	
 		  $this->public_title = MODULE_PAYMENT_PAY4LATER_TEXT_PUBLIC_TITLE . ' (Min Order '.$this->min_goods. ')';
@@ -134,7 +139,6 @@
         $check_query = tep_db_query('select orders_id from ' . TABLE_ORDERS_STATUS_HISTORY . ' where orders_id = "' . (int)$order_id . '" limit 1');
 
         if (tep_db_num_rows($check_query) < 1) {
-					tep_db_query('delete from ' . TABLE_QUICKBOOKS_TRANS . ' where qb_osc_id = "' . (int)$order_id . '"'); //QB Interface - delete order transaction for paypal preparing
           tep_db_query('delete from ' . TABLE_ORDERS . ' where orders_id = "' . (int)$order_id . '"');
           tep_db_query('delete from ' . TABLE_ORDERS_TOTAL . ' where orders_id = "' . (int)$order_id . '"');
           tep_db_query('delete from ' . TABLE_ORDERS_STATUS_HISTORY . ' where orders_id = "' . (int)$order_id . '"');
@@ -184,22 +188,183 @@ $calc_div .= '	</select></td></tr>
     <tr><td colspan="2">Available rates and deposits depend on spend.</td></tr>
     </table>
 </div>';
+/* $setup = <<<EOS1
+<style type="text/css">
+	div.pay4later_button, div.pay4later_confirm {
+		position:relative;
+		float:right;
+		text-align:center;
+		background-color:#6666CC;
+		color:#FFFFFF;
+		padding:10px;
+		margin-right:10px;
+		margin-bottom:10px;
+		border-radius:10px;
+		cursor:pointer;
+		box-shadow: 7px 7px 3px #888888;
+	}
+	#finance_calc td {
+		font-family: Verdana,Arial,sans-serif;
+		font-size: 11px;
+		line-height: 1.5;
+	}
+	#calc.ui-dialog-content { visibility:hidden; width:0px; font-size:1px; }
+	.ui-dialog-title {font-size:small;}
+</style>
+<script src="ext/jquery/ui/jquery-ui-1.10.4.min.js"></script>
+EOS1;
+$setup .= '<script type="text/javascript" src="'.$finance->GetJsApiScript().'"></script>
+<script>
+function jqid( myid ) {
+    return "#" + myid.replace( /(:|\.|\[|\])/g, "\\$1" );
+}
+function depositSelect(chosenOpt) {
+	var deposits = [];
+  var id = jqid(chosenOpt);
+  alert(id + " min " + $("#" + chosenOpt + "_min").val());
+	var minDeposit = $(jqid(chosenOpt + "_min")).val()*1;// frig to make a number
+	var maxDeposit = $(jqid(chosenOpt + "_max")).val()*1;// ditto
+  alert("min " + minDeposit + " max " + maxDeposit);
+	for (var i = minDeposit; i <= maxDeposit; i = i+5) {
+		deposits.push(\'<option value="\',i,\'">\',i,\'</option>\');
+//		alert("add deposit " + i);
+	}
+	return deposits;
+}
+</script>';
+$setup .= <<<EOS2
+<script><!--
+$(document).ready(function() {
+
+	$( "#finance_calc" ).dialog({
+		autoOpen: false,
+    open: function() {
+        $(this).closest(".ui-dialog")
+        .find(".ui-dialog-titlebar-close")
+        .html("<span style='color:#000; position:relative; top: -6px;'>x</span>");
+    },
+		title: "Finance Options Calculator",
+		width : 360,
+		height : 400,
+		position : { my: "center", at: "center" }
+	});
+
+	$('div.pay4later_confirm').click(function() {
+		var chosenCode = $("#finance_option").val();
+		var chosenOpt = $("#finance_option option[value='"+chosenCode+"']").text();
+		var depositAmt = $("#depositamt").val();
+		var loan = $("#loan").text();
+		var monthly = $("#monthly").text();
+		var term = $("#term").text();
+		var repay = $("#repay").text();
+		var apr = $("#apr").text();
+		$("#pay4later_option_id").val(chosenCode);
+		$("#option").text(chosenOpt);
+		$("#pay4later_option_text").val(chosenOpt);
+		$("#deposit").text("\u00A3"+depositAmt);
+		$("#pay4later_deposit").val(depositAmt);
+		$("#loan_amt").text("\u00A3"+loan);
+		$("#pay4later_loan").val(loan);
+		$("#monthly_amt").text("\u00A3"+monthly);
+		$("#pay4later_monthly").val(monthly);
+		$("#loan_term").text(term);
+		$("#pay4later_term").val(term);
+		$("#total").text("\u00A3"+repay);
+		$("#pay4later_total").val(repay);
+		$("#loan_apr").text(apr+'%');
+		$("#pay4later_apr").val(apr);
+		$("#finance_calc").dialog('close');
+	});
+
+	$('div.pay4later_button').click(function() {
+		var chosenOpt = $("#finance_option").val();
+		var deposits = depositSelect(chosenOpt);
+		var productVal = $("#spend").text();
+	    $("#depositpc").html(deposits.join(''));
+		var depositpc = $("#depositpc").val()*1;// frig to make a number
+//		alert("Finance Calc params: '" + chosenOpt + "','" + productVal + "','" + depositpc + "',0");
+		var fd_obj = new FinanceDetails(chosenOpt, productVal, depositpc, 0);
+		$("#finance_calc").setfromObj(fd_obj);
+		$("#finance_calc").dialog('open');
+	});
+
+	$( "#finance_option" ).change(function() {
+		var productVal = $("#spend").text();
+		var chosenOpt = this.value;
+		alert("Option changed to " + chosenOpt + ", for spend of " + productVal);
+		var deposits = depositSelect(chosenOpt);
+	    $("#depositpc").html(deposits.join(''));
+		var depositpc = $("#depositpc").val()*1;// frig to make a number
+		alert("Finance Calc params: '" + chosenOpt + "','" + productVal + "','" + depositpc + "',0");
+		var fd_obj = new FinanceDetails(chosenOpt, productVal, depositpc, 0);
+		$("#finance_calc").setfromObj(fd_obj);
+	});
+	
+	$("#depositpc").change(function() {
+		var chosenOpt = $("#finance_option").val();
+		var productVal = $("#spend").text();
+		var depositpc = $("#depositpc").val()*1;// frig to make a number
+		var depositamt = productVal * depositpc;
+		$("#depositamt").val(depositamt);
+//		alert("Finance Calc params: '" + chosenOpt + "','" + productVal + "','" + depositpc + "',0");
+		var fd_obj = new FinanceDetails(chosenOpt, productVal, depositpc, 0);
+		$("#finance_calc").setfromObj(fd_obj);
+	});
+	
+	$("#depositamt").change(function() {
+		var chosenOpt = $("#finance_option").val();
+		var productVal = $("#spend").text();
+		var depositamt = $("#depositamt").val()*1;// frig to make a number
+		var fd_obj = new FinanceDetails(chosenOpt, productVal, 0, depositamt);
+		$("#finance_calc").setfromObj(fd_obj);
+	});
+	
+	$.fn.setfromObj = function(fd_obj) { //set the dialog values from p4l calc return object
+		$("#depositpc").val(fd_obj.d_pc);
+		$("#depositamt").val(fd_obj.d_amount);
+		$("#loan").text(fd_obj.l_amount);
+		$("#monthly").text(fd_obj.m_inst);
+		$("#term").text(fd_obj.term);
+		$("#repay").text(fd_obj.total);
+		$("#rate").text(fd_obj.apr);
+		$("#apr").text(fd_obj.apr);
+//		alert("Return from api: '" + fd_obj.d_pc + "','" + fd_obj.d_amount + "','" + fd_obj.l_amount + "','" + fd_obj.m_inst + "','" + fd_obj.term + "','" +fd_obj.total  + "','" + fd_obj.apr + "'"); 
+//		$("#finance_calc").dialog('open');
+	}
+
+	$.fn.setDeposits = function(chosenOpt) { //clear and then populate deposit select for this option
+		this.empty();
+	//	this.find('option').remove().end();
+		var minDeposit = $(jqid(chosenOpt + "_min")).val()*1;// frig to make a number
+		var maxDeposit = $(jqid(chosenOpt + "_max")).val()*1;// ditto
+		alert("Deposit from " + minDeposit + " to " + maxDeposit);
+		for (var i = minDeposit; i <= maxDeposit; i = i+10) {
+			this.append("<option></option>").attr("value", i).text(i);
+		    alert("add deposit " + i);
+		}
+		this.val(minDeposit);
+	};
+/*	$('#finance_calc').css("visibility","visible"); */
+/*	
+}); //end of document ready function
+//--></script>
+EOS2; */
 		  $selection = array('id' => $this->code,
 					   'module' => $this->public_title,
 					   'fields' => array(array('title' => $calc_div,
 											   'field' => '<div class="pay4later_button">'.MODULE_PAYMENT_PAY4LATER_TEXT_BUTTON.'</div>'.'<b><i>Please note:</i></b> we must send your order to the address used in your finance application.<br>Review your order on the next page &amp; on confirmation we\'ll transfer you to apply online for credit.'),
 										 array('title' => MODULE_PAYMENT_PAY4LATER_TEXT_OPTION,
-											   'field' => '<span id="option">'.(isset($finance_application['option_text'])?$finance_application['option_text']:'').'</span>'. tep_draw_hidden_field('pay4later_option_id', (isset($finance_application['finance_code'])?$finance_application['finance_code']:''),'id="pay4later_option_id"'). tep_draw_hidden_field('pay4later_option_text', (isset($finance_application['option_text'])?$finance_application['option_text']:''),'id="pay4later_option_text"')),
+											   'field' => '<span id="option">'.(isset($finance_application['option_text'])?$finance_application['option_text']:'').'</span><br>'. tep_draw_hidden_field('pay4later_option_id', (isset($finance_application['finance_code'])?$finance_application['finance_code']:''),'id="pay4later_option_id"'). tep_draw_hidden_field('pay4later_option_text', (isset($finance_application['option_text'])?$finance_application['option_text']:''),'id="pay4later_option_text"')),
 										 array('title' => MODULE_PAYMENT_PAY4LATER_TEXT_DEPOSIT,
-											   'field' => '<span id="deposit">'.(isset($finance_application['deposit'])?$finance_application['deposit']:'').'</span>'. tep_draw_hidden_field('pay4later_deposit', (isset($finance_application['deposit'])?$finance_application['deposit']:''),'id="pay4later_deposit"')),
+											   'field' => '<span id="deposit">'.(isset($finance_application['deposit'])?$finance_application['deposit']:'').'</span><br>'. tep_draw_hidden_field('pay4later_deposit', (isset($finance_application['deposit'])?$finance_application['deposit']:''),'id="pay4later_deposit"')),
 										 array('title' => MODULE_PAYMENT_PAY4LATER_TEXT_LOAN,
-											   'field' => '<span id="loan_amt">'.(isset($finance_application['loan'])?$finance_application['loan']:'').'</span>'. tep_draw_hidden_field('pay4later_loan', (isset($finance_application['loan'])?$finance_application['loan']:''),'id="pay4later_loan"')),
+											   'field' => '<span id="loan_amt">'.(isset($finance_application['loan'])?$finance_application['loan']:'').'</span><br>'. tep_draw_hidden_field('pay4later_loan', (isset($finance_application['loan'])?$finance_application['loan']:''),'id="pay4later_loan"')),
 										 array('title' => MODULE_PAYMENT_PAY4LATER_TEXT_MONTHLY,
-											   'field' => '<span id="monthly_amt">'.(isset($finance_application['monthly'])?$finance_application['monthly']:'').'</span>'. tep_draw_hidden_field('pay4later_monthly', (isset($finance_application['monthly'])?$finance_application['monthly']:''),'id="pay4later_monthly"')),
+											   'field' => '<span id="monthly_amt">'.(isset($finance_application['monthly'])?$finance_application['monthly']:'').'</span><br>'. tep_draw_hidden_field('pay4later_monthly', (isset($finance_application['monthly'])?$finance_application['monthly']:''),'id="pay4later_monthly"')),
 										 array('title' => MODULE_PAYMENT_PAY4LATER_TEXT_TERM,
-											   'field' => '<span id="loan_term">'.(isset($finance_application['term'])?$finance_application['term']:'').'</span>'. tep_draw_hidden_field('pay4later_term', (isset($finance_application['term'])?$finance_application['term']:''),'id="pay4later_term"')),
+											   'field' => '<span id="loan_term">'.(isset($finance_application['term'])?$finance_application['term']:'').'</span><br>'. tep_draw_hidden_field('pay4later_term', (isset($finance_application['term'])?$finance_application['term']:''),'id="pay4later_term"')),
 										 array('title' => MODULE_PAYMENT_PAY4LATER_TEXT_REPAYABLE,
-											   'field' => '<span id="total">'.(isset($finance_application['total'])?$finance_application['total']:'').'</span>'. tep_draw_hidden_field('pay4later_total', (isset($finance_application['total'])?$finance_application['total']:''),'id="pay4later_total"')),
+											   'field' => '<span id="total">'.(isset($finance_application['total'])?$finance_application['total']:'').'</span><br>'. tep_draw_hidden_field('pay4later_total', (isset($finance_application['total'])?$finance_application['total']:''),'id="pay4later_total"')),
 										 array('title' => MODULE_PAYMENT_PAY4LATER_TEXT_APR,
 											   'field' => '<span id="loan_apr">'.(isset($finance_application['apr'])?$finance_application['apr'].'&#37':'').'</span>'. tep_draw_hidden_field('pay4later_apr', (isset($finance_application['apr'])?$finance_application['apr']:''),'id="pay4later_apr"'))
 										)
@@ -236,7 +401,6 @@ $calc_div .= '	</select></td></tr>
             $check_query = tep_db_query('select orders_id from ' . TABLE_ORDERS_STATUS_HISTORY . ' where orders_id = "' . (int)$order_id . '" limit 1');
 
             if (tep_db_num_rows($check_query) < 1) {
-							tep_db_query('delete from ' . TABLE_QUICKBOOKS_TRANS . ' where qb_osc_id = "' . (int)$order_id . '"'); //QB Interface - delete order transaction for paypal preparing
               tep_db_query('delete from ' . TABLE_ORDERS . ' where orders_id = "' . (int)$order_id . '"');
               tep_db_query('delete from ' . TABLE_ORDERS_TOTAL . ' where orders_id = "' . (int)$order_id . '"');
               tep_db_query('delete from ' . TABLE_ORDERS_STATUS_HISTORY . ' where orders_id = "' . (int)$order_id . '"');
@@ -325,9 +489,6 @@ $calc_div .= '	</select></td></tr>
 
 		  tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array); */
 	
-					//QB Interface - record create order transaction
-					qb_order_transaction($insert_id);
-
           for ($i=0, $n=sizeof($order_totals); $i<$n; $i++) {
             $sql_data_array = array('orders_id' => $insert_id,
                                     'title' => $order_totals[$i]['title'],
@@ -757,9 +918,13 @@ $calc_div .= '	</select></td></tr>
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, use_function, date_added) values ('Set Acknowledged Order Status', 'MODULE_PAYMENT_PAY4LATER_ORDER_STATUS_ID', '0', 'Set the status of orders made with this payment module to this value', '6', '21', 'tep_cfg_pull_down_order_statuses(', 'tep_get_order_status_name', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Debug E-Mail Address', 'MODULE_PAYMENT_PAY4LATER_DEBUG_EMAIL', '', 'All parameters of an Invalid IPN notification will be sent to this email address if one is entered.', '6', '27', now())");
 	  for ($i = 1; $i <= $this->no_options ; $i++) {
-		  tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Finance Option $i', 'MODULE_PAYMENT_PAY4LATER_OPTION_$i', '', 'List in order short to long terms. Format is productcode|goods min|goods max|deposit min|deposit max|description', '6', '30', now())");
+		  $this->insert_option($i);
 	  }
     }
+		
+		function insert_option($i) {
+		  tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Finance Option $i', 'MODULE_PAYMENT_PAY4LATER_OPTION_$i', '', 'List in order short to long terms. Format is productcode|goods min|goods max|deposit min|deposit max|description', '6', '30', now())");
+		}
 
     function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
