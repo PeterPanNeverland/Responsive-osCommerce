@@ -34,12 +34,12 @@ class ht_discount_code {
     function execute() {
         global $PHP_SELF, $HTTP_GET_VARS, $oscTemplate, $sess_discount_code;
         if (MODULE_ORDER_TOTAL_DISCOUNT_STATUS == 'true') {
-            if (basename($PHP_SELF) == FILENAME_CHECKOUT_PAYMENT) {
+            if (basename($PHP_SELF) == 'checkout_payment.php') {
                 ob_start();
                 include('ht_discount_code/ht_discount_code.php');
                 $template = ob_get_clean();
                 $oscTemplate->addBlock($template, $this->group);
-            } elseif (basename($PHP_SELF) == FILENAME_LOGOFF) {
+            } elseif (basename($PHP_SELF) == 'logoff.php') {
                 if (tep_session_is_registered('sess_discount_code')) {
                     tep_session_unregister('sess_discount_code');
                 }

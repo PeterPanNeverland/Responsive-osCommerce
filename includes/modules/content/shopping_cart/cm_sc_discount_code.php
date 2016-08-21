@@ -70,7 +70,7 @@
         $discount_code .= '	</div>';
         $discount_code .= '	<div class="panel-body">';
 		
- 		$discount_code .= tep_draw_form('discount', tep_href_link(FILENAME_SHOPPING_CART, '', 'NONSSL'), 'post');
+ 		$discount_code .= tep_draw_form('discount', tep_href_link('shopping_cart.php', '', 'NONSSL'), 'post');
 		   
 		    	if ($sess_discount_code == 'undefined') $sess_discount_code = '';
 		    	$discounttxt = '<div class="row">';
