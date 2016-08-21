@@ -517,3 +517,11 @@
       $breadcrumb->add($model['products_model'], tep_href_link('product_info.php', 'cPath=' . $cPath . '&products_id=' . $_GET['products_id']));
     }
   }
+  // Discount Codes 3.8 BS - start
+  if (MODULE_ORDER_TOTAL_DISCOUNT_STATUS == 'true') {
+    if (!tep_session_is_registered('sess_discount_code')) tep_session_register('sess_discount_code');
+    if (!empty($HTTP_GET_VARS['discount_code'])) $sess_discount_code = tep_db_prepare_input($HTTP_GET_VARS['discount_code']);
+    if (!empty($HTTP_POST_VARS['discount_code'])) $sess_discount_code = tep_db_prepare_input($HTTP_POST_VARS['discount_code']);
+  }
+  // Discount Codes 3.8 BS - end
+

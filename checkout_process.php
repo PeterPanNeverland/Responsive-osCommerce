@@ -239,6 +239,18 @@
     $products_ordered .= $order->products[$i]['qty'] . ' x ' . $order->products[$i]['name'] . ' (' . $order->products[$i]['model'] . ') = ' . $currencies->display_price($order->products[$i]['final_price'], $order->products[$i]['tax'], $order->products[$i]['qty']) . $products_ordered_attributes . "\n";
   }
 
+  // Discount Codes 3.8 BS - start
+  if (MODULE_ORDER_TOTAL_DISCOUNT_STATUS == 'true' && !empty($discount)) {
+    $discount_codes_query = tep_db_query("select discount_codes_id from discount_codes where discount_codes = '" . tep_db_input($sess_discount_code) . "'");
+    $discount_codes = tep_db_fetch_array($discount_codes_query);
+
+    tep_db_perform('customers_to_discount_codes', array('customers_id' => $customer_id, 'discount_codes_id' => $discount_codes['discount_codes_id']));
+    tep_db_query("update discount_codes set number_of_orders = number_of_orders + 1 where discount_codes_id = '" . (int)$discount_codes['discount_codes_id'] . "'");
+
+    tep_session_unregister('sess_discount_code');
+  }
+  // Discount Codes 3.8 BS - end
+
 // lets start with the email confirmation
   $email_order = STORE_NAME . "\n" . 
                  EMAIL_SEPARATOR . "\n" . 
