@@ -19,5 +19,8 @@
   define('MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TEXT_WARNING_DEMO_MODE', 'Transaction performed in test mode.');
 
   define('MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TEXT_SUCCESSFUL_TRANSACTION', 'The payment has been successfully performed! You will be automatically redirected back to our website in 3 seconds.');
+  define('MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TEXT_CANCEL_TRANSACTION', 'Payment processing cancelled in WorldPay. You will be automatically redirected back to your shopping cart in 3 seconds.');
+  define('MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TEXT_CANCEL', 'Cancelled in WorldPay. Please choose a payment method.');
   define('MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TEXT_CONTINUE_BUTTON', 'Continue to %s');
+  define('MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TEXT_RETURN_BUTTON', 'Return to %s');
 ?>
