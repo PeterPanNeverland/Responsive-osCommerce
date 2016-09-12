@@ -79,6 +79,16 @@ if ($cancelled == false) {
   if (MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TESTMODE == 'True') {
     $trans_result .= "\n" . MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TEXT_WARNING_DEMO_MODE;
   }
+	
+	if (isset($_POST['AVS']) && is_numeric($_POST['AVS']) && strlen($_POST['AVS']) == 4) {
+    $valid_result = array(0,1,2,4,8);
+		$avs = array(MODULE_PAYMENT_RBSWORLDPAY_HOSTED_AVS_CVV, MODULE_PAYMENT_RBSWORLDPAY_HOSTED_AVS_POSTCODE, MODULE_PAYMENT_RBSWORLDPAY_HOSTED_AVS_ADDRESS, MODULE_PAYMENT_RBSWORLDPAY_HOSTED_AVS_COUNTRY);
+		for ($i = 0, $n = count($avs); $i < $n ; $i++) {
+		  if (in_array(substr($_POST['AVS'],$i,1),$valid_result)) {
+			  $trans_result .= "\n" . $avs[$i] . constant('MODULE_PAYMENT_RBSWORLDPAY_HOSTED_AVS_'.substr($_POST['AVS'],$i,1));
+			}
+		}
+	}
 
   $sql_data_array = array('orders_id' => $order['orders_id'],
                           'orders_status_id' => MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TRANSACTIONS_ORDER_STATUS_ID,
