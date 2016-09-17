@@ -80,6 +80,14 @@ if ($cancelled == false) {
     $trans_result .= "\n" . MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TEXT_WARNING_DEMO_MODE;
   }
 	
+	if (isset($_POST['wafMerchMessage'])) {
+	  if ($_POST['wafMerchMessage'] == 'waf.warning') {
+			$trans_result .= "\n\n" . MODULE_PAYMENT_RBSWORLDPAY_HOSTED_WAF . MODULE_PAYMENT_RBSWORLDPAY_HOSTED_WAF_WARNING ."\n";
+		} elseif ($_POST['wafMerchMessage'] == 'waf.caution') {
+			$trans_result .= "\n\n" . MODULE_PAYMENT_RBSWORLDPAY_HOSTED_WAF . MODULE_PAYMENT_RBSWORLDPAY_HOSTED_WAF_CAUTION ."\n";
+		}
+	}
+	
 	if (isset($_POST['AVS']) && is_numeric($_POST['AVS']) && strlen($_POST['AVS']) == 4) {
     $valid_result = array(0,1,2,4,8);
 		$avs = array(MODULE_PAYMENT_RBSWORLDPAY_HOSTED_AVS_CVV, MODULE_PAYMENT_RBSWORLDPAY_HOSTED_AVS_POSTCODE, MODULE_PAYMENT_RBSWORLDPAY_HOSTED_AVS_ADDRESS, MODULE_PAYMENT_RBSWORLDPAY_HOSTED_AVS_COUNTRY);
