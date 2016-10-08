@@ -4,7 +4,7 @@
 
   add customer orders tab to admin / orders.php
 	
-	author: @BrockleyJohn john@sewebsites.net
+	author: John Ferguson @BrockleyJohn john@sewebsites.net
 
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
@@ -15,9 +15,6 @@
 */
 
   class hook_admin_orders_customer_tab {
-    function __construct() {
-
-    }
 		
 		function load_language() {
 		  global $language;
