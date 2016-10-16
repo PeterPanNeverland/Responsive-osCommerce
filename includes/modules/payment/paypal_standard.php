@@ -17,8 +17,8 @@
   class paypal_standard {
     var $code, $title, $description, $enabled, $_app;
 
-    function paypal_standard() {
-      global $PHP_SELF, $payment, $order;
+    function __construct() {
+      global $PHP_SELF, $order;
 
       $this->_app = new OSCOM_PayPal();
       $this->_app->loadLanguageFile('modules/PS/PS.php');

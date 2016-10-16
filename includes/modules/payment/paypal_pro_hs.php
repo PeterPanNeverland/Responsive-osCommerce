@@ -17,8 +17,8 @@
   class paypal_pro_hs {
     var $code, $title, $description, $enabled, $_app;
 
-    function paypal_pro_hs() {
-      global $order;
+    function __construct() {
+      global $PHP_SELF, $order;
 
       $this->_app = new OSCOM_PayPal();
       $this->_app->loadLanguageFile('modules/HS/HS.php');
