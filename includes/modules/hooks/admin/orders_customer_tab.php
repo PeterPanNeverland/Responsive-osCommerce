@@ -22,14 +22,14 @@
 		}
 
     function execute() {
-      global $oID;
+      global $oID, $languages_id;
 			$this->load_language();
 
       $output = '';
 
       $status = array();
 
-      $query = tep_db_query("SELECT o.orders_id, o.date_purchased, os.orders_status_name, o.payment_method, ots.title as order_shipping, ott.text as order_total FROM ".TABLE_ORDERS." o left join ".TABLE_ORDERS_TOTAL." ots on (ots.orders_id = o.orders_id) left join ".TABLE_ORDERS_TOTAL." ott on (ott.orders_id = o.orders_id) left join ".TABLE_ORDERS_STATUS." os on (os.orders_status_id = o.orders_status) where ots.class = 'ot_shipping' and ott.class = 'ot_total' and o.customers_id in (select customers_id from ".TABLE_ORDERS." where orders_id = '" . (int)$oID . "') order by date_purchased desc");
+      $query = tep_db_query("SELECT o.orders_id, o.date_purchased, os.orders_status_name, o.payment_method, ots.title as order_shipping, ott.text as order_total FROM ".TABLE_ORDERS." o left join ".TABLE_ORDERS_TOTAL." ots on (ots.orders_id = o.orders_id) left join ".TABLE_ORDERS_TOTAL." ott on (ott.orders_id = o.orders_id) left join ".TABLE_ORDERS_STATUS." os on (os.orders_status_id = o.orders_status) where ots.class = 'ot_shipping' and ott.class = 'ot_total' and os.language_id = '" . (int)$languages_id . "' and o.customers_id in (select customers_id from ".TABLE_ORDERS." where orders_id = '" . (int)$oID . "') order by date_purchased desc");
       if ( tep_db_num_rows($query) > 1 ) {
 			
 			  // if there are more orders - make a list of them (this one highlighted, others clickable to load admin orders page)
