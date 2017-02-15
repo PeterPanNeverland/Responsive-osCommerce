@@ -113,7 +113,7 @@ $url = tep_href_link(($cancelled ? 'checkout_payment.php' : 'checkout_process.ph
 <html <?php echo HTML_PARAMS; ?>>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET; ?>" />
-<title><?php echo tep_output_string_protected($oscTemplate->getTitle()); ?></title>
+<title><?php echo tep_output_string_protected(MODULE_PAYMENT_RBSWORLDPAY_HOSTED_TEXT_CALLBACK_TITLE); ?></title>
 <meta http-equiv="refresh" content="3; URL=<?php echo $url; ?>">
 <style>
  body {font-family:Geneva, Arial, Helvetica, sans-serif;}
